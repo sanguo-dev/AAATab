@@ -6,7 +6,7 @@ import { browser } from 'wxt/browser';
 
 export interface ShellPage {
     id: string;
-    label: string;
+    title: string;
 }
 
 interface NewTabShellProps {
@@ -75,7 +75,7 @@ export default function NewTabShell(props: NewTabShellProps) {
                 ref={(element) => {
                     contentRef = element;
                 }}
-                class="relative z-10 flex min-h-screen items-center justify-center px-6 py-24"
+                class="relative z-10 min-h-screen"
             >
                 {props.children}
             </div>
@@ -90,7 +90,7 @@ export default function NewTabShell(props: NewTabShellProps) {
                                     : 'w-2 bg-base-content/30 hover:bg-base-content/50'
                             }`}
                             type="button"
-                            aria-label={page.label}
+                            aria-label={page.title}
                             aria-current={index() === props.index ? 'page' : undefined}
                             onClick={() => goTo(index())}
                         />

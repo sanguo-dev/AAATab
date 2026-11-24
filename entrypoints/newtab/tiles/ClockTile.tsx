@@ -23,7 +23,7 @@ function greeting(hour: number) {
     return '晚上好';
 }
 
-export default function ClockPage() {
+export default function ClockTile() {
     const { settings } = useSettings();
     const [now, setNow] = createSignal(new Date());
 
@@ -33,7 +33,7 @@ export default function ClockPage() {
     });
 
     return (
-        <section class="flex flex-col items-center text-center">
+        <section class="flex h-full w-full flex-col items-center justify-center text-center">
             <Show when={settings().showClock}>
                 <p class="time m-0 bg-gradient-to-b from-white to-blue-200 bg-clip-text text-[clamp(4.5rem,16vw,11rem)] font-extralight leading-none tracking-tighter text-transparent tabular-nums">
                     {formatTime(now())}

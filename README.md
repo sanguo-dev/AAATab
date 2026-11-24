@@ -27,6 +27,21 @@ Options (`options.html`, hash history, sidebar):
 - `#/` — general settings
 - `#/newtab` — new tab display settings
 
+## Dashboard foundation
+
+- `utils/dashboard/types.ts` — pages, tiles, icon sources, grid rects
+- `utils/dashboard/defaults.ts` — default dashboard data
+- `utils/dashboard/grid.ts` — grid clamp/overlap/move/compact math
+- `utils/dashboard/normalize.ts` — persisted-data validation and migration point
+- `utils/dashboard/storage.ts` — `storage.local` item
+- `utils/dashboard/use-dashboard.tsx` — provider and commands
+  (`setActivePage`, `moveTile`, `updateTile`, `addTile`, `removeTile`,
+  `addPage`, `removePage`, `movePage`)
+- `entrypoints/newtab/PageGrid.tsx` + `entrypoints/newtab/tiles/` — data-driven
+  grid and tile renderers
+
+Adding a page or tile is data, not a new page file.
+
 ## Development
 
 ```bash
