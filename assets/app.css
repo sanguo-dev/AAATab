@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: dark --default;
+}
+
+@source "../entrypoints";
+
+:root {
+    font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+.tab-surface {
+    background:
+        radial-gradient(1100px 700px at 12% 8%, rgba(56, 102, 255, 0.28), transparent 60%),
+        radial-gradient(900px 650px at 88% 92%, rgba(147, 51, 234, 0.24), transparent 62%),
+        #060810;
+}
+
+.tab-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
+}
+

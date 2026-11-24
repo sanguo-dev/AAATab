@@ -1,27 +1,38 @@
 {
-  "name": "wxt-solid-starter",
-  "version": "0.0.0",
-  "private": true,
-  "description": "manifest.json description",
-  "type": "module",
-  "scripts": {
-    "dev": "wxt",
-    "dev:firefox": "wxt -b firefox",
-    "build": "wxt build",
-    "build:firefox": "wxt build -b firefox",
-    "zip": "wxt zip",
-    "zip:firefox": "wxt zip -b firefox",
-    "compile": "tsc --noEmit",
-    "postinstall": "wxt prepare"
-  },
-  "dependencies": {
-    "solid-js": "^1.9.11"
-  },
-  "devDependencies": {
-    "@wxt-dev/module-solid": "^1.1.4",
-    "typescript": "^5.9.3",
-    "vite": "^8.1.5",
-    "web-ext": "^10.5.0",
-    "wxt": "^0.21.3"
-  }
+    "name": "AAATabBrowserExtension",
+    "version": "0.0.0",
+    "private": true,
+    "description": "manifest.json description",
+    "type": "module",
+    "scripts": {
+        "dev:edge": "wxt -b edge",
+        "dev": "wxt",
+        "dev:firefox": "wxt -b firefox",
+        "build": "wxt build",
+        "build:firefox": "wxt build -b firefox",
+        "zip": "wxt zip",
+        "zip:firefox": "wxt zip -b firefox",
+        "compile": "tsc --noEmit",
+        "changeset": "changeset",
+        "version-packages": "changeset version",
+        "postinstall": "wxt prepare"
+    },
+    "dependencies": {
+        "@lucide/solid": "^1.79.0",
+        "@solidjs/router": "2.0.1",
+        "@solidjs/web": "^2.0.3",
+        "animejs": "^4.5.0",
+        "solid-js": "^2.0.3"
+    },
+    "devDependencies": {
+        "@changesets/cli": "^3.0.3",
+        "@solidjs/vite-plugin": "^3.0.1",
+        "@tailwindcss/vite": "^4.3.5",
+        "daisyui": "^5.8.2",
+        "tailwindcss": "^4.3.5",
+        "typescript": "^5.9.3",
+        "vite": "^8.1.5",
+        "web-ext": "^10.5.0",
+        "wxt": "^0.21.3"
+    }
 }

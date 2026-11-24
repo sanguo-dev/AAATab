@@ -1,37 +1,42 @@
-import wxtLogo from '/wxt.svg';
-import { createSignal } from 'solid-js';
+import { ExternalLink, Settings, Sparkles } from '@lucide/solid';
+import { browser } from 'wxt/browser';
 
-import solidLogo from '@/assets/solid.svg';
+export default function App() {
+    const openNewTab = async () => {
+        await browser.tabs.create({ url: browser.runtime.getURL('/newtab.html') });
+        window.close();
+    };
 
-import './App.css';
+    const openSettings = async () => {
+        try {
+            await browser.runtime.openOptionsPage();
+        } catch {
+            await browser.tabs.create({ url: browser.runtime.getURL('/options.html') });
+        }
+        window.close();
+    };
 
-function App() {
-  const [count, setCount] = createSignal(0);
+    return (
+        <main class="w-72 bg-base-200 p-4 text-base-content">
+            <header class="mb-4 flex items-center gap-2">
+                <Sparkles size={18} class="text-primary" />
+                <span class="text-sm font-semibold tracking-wide">AAATab</span>
+            </header>
 
-  return (
-    <>
-      <div>
-        <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} class="logo" alt="WXT logo" />
-        </a>
-        <a href="https://solidjs.com" target="_blank">
-          <img src={solidLogo} class="logo solid" alt="Solid logo" />
-        </a>
-      </div>
-      <h1>WXT + Solid</h1>
-      <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count()}
-        </button>
-        <p>
-          Edit <code>popup/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p class="read-the-docs">
-        Click on the WXT and Solid logos to learn more
-      </p>
-    </>
-  );
+            <div class="flex flex-col gap-2">
+                <button class="btn btn-primary btn-sm justify-start" type="button" onClick={openNewTab}>
+                    <ExternalLink size={16} />
+                    打开新标签页
+                </button>
+                <button class="btn btn-ghost btn-sm justify-start" type="button" onClick={openSettings}>
+                    <Settings size={16} />
+                    设置
+                </button>
+            </div>
+
+            <p class="mt-4 text-[0.7rem] leading-relaxed text-base-content/50">
+                新标签页已启用 AAATab。
+            </p>
+        </main>
+    );
 }
-
-export default App;

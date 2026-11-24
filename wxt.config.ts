@@ -1,6 +1,25 @@
+import solid from '@solidjs/vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'wxt';
 
 // See https://wxt.dev/api/reference/wxt/interfaces/inlineconfig.html
 export default defineConfig({
-  modules: ['@wxt-dev/module-solid'],
+    manifest: {
+        // Used by the new tab page and options page to persist settings.
+        permissions: ["storage"],
+    },
+    vite: () => ({
+        // @solidjs/vite-plugin is the Solid 2 replacement for vite-plugin-solid.
+        plugins: [solid(), tailwindcss()],
+        build: {
+            // Solid 2 compiles to modern syntax.
+            target: "esnext",
+        },
+    }),
+    webExt: {
+        binaries: {
+            edge: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+            firefox: "firefoxdeveloperedition",
+        },
+    },
 });
