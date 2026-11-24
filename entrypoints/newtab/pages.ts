@@ -3,8 +3,8 @@ export type NewTabPageKind = 'clock' | 'content';
 export type NewTabPageIcon = 'layout-grid' | 'link' | 'sparkles';
 
 export interface NewTabPageConfig {
-    /** Hash route segment. The root page uses an empty slug. */
-    slug: string;
+    /** Stable identifier used for future persistence and ordering. */
+    id: string;
     label: string;
     kind: NewTabPageKind;
     title?: string;
@@ -14,16 +14,16 @@ export interface NewTabPageConfig {
 
 /**
  * New tab pages are configuration, not one component file per page.
- * Add an entry here and the route, wheel order and page dots follow.
+ * Add an entry here and the pager order, dots and rendering follow.
  */
 export const NEW_TAB_PAGES: NewTabPageConfig[] = [
     {
-        slug: '',
+        id: 'home',
         label: '第一页',
         kind: 'clock',
     },
     {
-        slug: 'second',
+        id: 'second',
         label: '第二页',
         kind: 'content',
         title: '第二页',

@@ -1,46 +1,43 @@
 import { Settings } from '@lucide/solid';
-import { useLocation, useNavigate } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
 import { animate } from 'animejs';
 import { For, createEffect } from 'solid-js';
 import { browser } from 'wxt/browser';
 
 export interface ShellPage {
-    slug: string;
+    id: string;
     label: string;
 }
 
 interface NewTabShellProps {
     pages: readonly ShellPage[];
+    index: number;
+    direction: number;
+    onIndexChange: (index: number) => void;
     children: JSX.Element;
 }
 
-const pagePath = (page: ShellPage) => (page.slug ? `/${page.slug}` : '/');
-
 export default function NewTabShell(props: NewTabShellProps) {
-    const location = useLocation();
-    const navigate = useNavigate();
     let wheelLocked = false;
     let contentRef: HTMLDivElement | undefined;
 
     createEffect(
-        () => location.pathname,
+        () => props.index,
         () => {
             if (!contentRef) return;
             animate(contentRef, {
                 opacity: [0, 1],
-                y: [18, 0],
+                x: [props.direction * 32, 0],
                 duration: 420,
                 ease: 'outCubic',
             });
         },
     );
 
-    const pageIndex = () => props.pages.findIndex((page) => pagePath(page) === location.pathname);
-
-    const goTo = (path: string) => {
+    const goTo = (next: number) => {
+        if (next === props.index || next < 0 || next >= props.pages.length) return;
         wheelLocked = true;
-        void navigate(path);
+        props.onIndexChange(next);
         window.setTimeout(() => {
             wheelLocked = false;
         }, 450);
@@ -48,13 +45,7 @@ export default function NewTabShell(props: NewTabShellProps) {
 
     const onWheel = (event: WheelEvent) => {
         if (wheelLocked || Math.abs(event.deltaY) < 20) return;
-
-        const index = pageIndex();
-        if (index < 0) return;
-
-        const next = event.deltaY > 0 ? index + 1 : index - 1;
-        const page = props.pages[next];
-        if (page) goTo(pagePath(page));
+        goTo(props.index + (event.deltaY > 0 ? 1 : -1));
     };
 
     const openSettings = () => {
@@ -94,14 +85,14 @@ export default function NewTabShell(props: NewTabShellProps) {
                     {(page, index) => (
                         <button
                             class={`h-2 rounded-full transition-all duration-300 ${
-                                index() === pageIndex()
+                                index() === props.index
                                     ? 'w-7 bg-primary'
                                     : 'w-2 bg-base-content/30 hover:bg-base-content/50'
                             }`}
                             type="button"
                             aria-label={page.label}
-                            aria-current={index() === pageIndex() ? 'page' : undefined}
-                            onClick={() => goTo(pagePath(page))}
+                            aria-current={index() === props.index ? 'page' : undefined}
+                            onClick={() => goTo(index())}
                         />
                     )}
                 </For>

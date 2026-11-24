@@ -5,7 +5,7 @@ A browser new tab page built with [WXT](https://wxt.dev/) and
 
 - Styling: [Tailwind CSS 4](https://tailwindcss.com/) + [daisyUI 5](https://daisyui.com/)
 - Icons: [`@lucide/solid`](https://lucide.dev/guide/solid/getting-started), the Lucide package for Solid 2
-- Routing: `@solidjs/router` 2 with `hashHistory()` (extension pages cannot use pathname routing)
+- Routing: `@solidjs/router` 2 with `hashHistory()` on the options page only; the new tab pager is plain state, no URL changes
 - Page transitions: [anime.js](https://animejs.com/) 4
 - Versioning: [Changesets](https://github.com/changesets/changesets)
 
@@ -16,12 +16,13 @@ opens that page directly.
 
 ## Pages and routes
 
-New tab (`newtab.html`, hash history):
+New tab (`newtab.html`, no routing):
 
-- `#/` — clock, date, greeting
-- `#/second` — the second full-screen page (mouse wheel flips between pages)
+- First page — clock, date, greeting
+- Second page — full-screen content page
+- Mouse wheel, page dots, and anime.js transitions move between pages
 
-Options (`options.html`, hash history):
+Options (`options.html`, hash history, sidebar):
 
 - `#/` — general settings
 - `#/newtab` — new tab display settings
