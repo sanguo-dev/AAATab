@@ -37,8 +37,8 @@ Options (`options.html`, hash history, sidebar):
 - `utils/dashboard/use-dashboard.tsx` — provider and commands
   (`setActivePage`, `moveTile`, `updateTile`, `addTile`, `removeTile`,
   `addPage`, `removePage`, `movePage`)
-- `entrypoints/newtab/PageGrid.tsx` + `entrypoints/newtab/tiles/` — data-driven
-  grid and tile renderers
+- `entrypoints/newtab/PageGrid.tsx` + `components/tiles/` — data-driven grid
+  and tile renderers (tile registry, no per-page switch)
 
 Adding a page or tile is data, not a new page file.
 

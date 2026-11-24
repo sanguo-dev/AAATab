@@ -1,7 +1,7 @@
-import { Settings } from '@lucide/solid';
+import { Check, Pencil, Settings } from '@lucide/solid';
 import type { JSX } from '@solidjs/web';
 import { animate } from 'animejs';
-import { For, createEffect } from 'solid-js';
+import { For, Show, createEffect } from 'solid-js';
 import { browser } from 'wxt/browser';
 
 export interface ShellPage {
@@ -13,7 +13,9 @@ interface NewTabShellProps {
     pages: readonly ShellPage[];
     index: number;
     direction: number;
+    editing: boolean;
     onIndexChange: (index: number) => void;
+    onToggleEditing: () => void;
     children: JSX.Element;
 }
 
@@ -35,6 +37,7 @@ export default function NewTabShell(props: NewTabShellProps) {
     );
 
     const goTo = (next: number) => {
+        if (props.editing) return;
         if (next === props.index || next < 0 || next >= props.pages.length) return;
         wheelLocked = true;
         props.onIndexChange(next);
@@ -44,7 +47,7 @@ export default function NewTabShell(props: NewTabShellProps) {
     };
 
     const onWheel = (event: WheelEvent) => {
-        if (wheelLocked || Math.abs(event.deltaY) < 20) return;
+        if (props.editing || wheelLocked || Math.abs(event.deltaY) < 20) return;
         goTo(props.index + (event.deltaY > 0 ? 1 : -1));
     };
 
@@ -61,15 +64,29 @@ export default function NewTabShell(props: NewTabShellProps) {
         >
             <div class="tab-surface pointer-events-none absolute inset-0" aria-hidden="true" />
 
-            <button
-                class="btn btn-circle btn-ghost absolute right-4 top-4 z-20 border border-base-content/10 bg-base-100/30 backdrop-blur-sm"
-                type="button"
-                title="设置"
-                aria-label="打开设置"
-                onClick={openSettings}
-            >
-                <Settings size={20} />
-            </button>
+            <div class="absolute right-4 top-4 z-20 flex items-center gap-2">
+                <button
+                    class="btn btn-circle btn-ghost border border-base-content/10 bg-base-100/30 backdrop-blur-sm"
+                    type="button"
+                    title={props.editing ? '完成编辑' : '编辑页面'}
+                    aria-label={props.editing ? '完成编辑' : '编辑页面'}
+                    aria-pressed={props.editing ? 'true' : 'false'}
+                    onClick={props.onToggleEditing}
+                >
+                    <Show when={props.editing} fallback={<Pencil size={20} />}>
+                        <Check size={20} />
+                    </Show>
+                </button>
+                <button
+                    class="btn btn-circle btn-ghost border border-base-content/10 bg-base-100/30 backdrop-blur-sm"
+                    type="button"
+                    title="设置"
+                    aria-label="打开设置"
+                    onClick={openSettings}
+                >
+                    <Settings size={20} />
+                </button>
+            </div>
 
             <div
                 ref={(element) => {
