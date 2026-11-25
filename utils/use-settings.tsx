@@ -10,13 +10,6 @@ interface SettingsStore {
 
 const SettingsContext = createContext<SettingsStore>();
 
-/**
- * Owns the single settings signal and its storage subscription for a page.
- *
- * Solid 2 stages signal writes until the next microtask, so `settings()`
- * cannot be used to compose back-to-back updates. `current` always holds
- * the latest value written by this provider.
- */
 export function SettingsProvider(props: { children: JSX.Element }) {
     let current: Settings = { ...DEFAULT_SETTINGS };
     const [settings, setSettings] = createSignal<Settings>(current);

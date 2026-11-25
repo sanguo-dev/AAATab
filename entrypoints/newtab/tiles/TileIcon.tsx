@@ -1,6 +1,6 @@
 import { Clock, LayoutGrid, Link as LinkIcon, Sparkles } from '@lucide/solid';
 
-import type { IconName, IconSource } from '@/utils/dashboard/types';
+import type { IconName, IconSource } from '../dashboard/types';
 
 const LUCIDE_ICONS = {
     clock: Clock,

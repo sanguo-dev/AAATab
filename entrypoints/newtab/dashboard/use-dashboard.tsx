@@ -2,7 +2,7 @@ import type { JSX } from '@solidjs/web';
 import { createContext, createSignal, onSettled, useContext } from 'solid-js';
 
 import { createDefaultDashboard } from './defaults';
-import { moveTile as moveTileOnGrid } from './grid';
+import { moveTile as moveTileOnGrid, resizeTile as resizeTileOnGrid } from './grid';
 import { normalizeDashboard } from './normalize';
 import { dashboardItem } from './storage';
 import type { DashboardData, DashboardPage, GridRect, IconSource, Tile } from './types';
@@ -13,6 +13,7 @@ export interface TilePatch {
     grid?: GridRect;
     url?: string;
     text?: string;
+    template?: string;
 }
 
 export interface PagePatch {
@@ -27,6 +28,7 @@ interface DashboardStore {
     updatePage: (pageId: string, patch: PagePatch) => void;
     updateTile: (pageId: string, tileId: string, patch: TilePatch) => void;
     moveTile: (pageId: string, tileId: string, rect: GridRect) => void;
+    resizeTile: (pageId: string, tileId: string, rect: GridRect) => void;
     addTile: (pageId: string, tile: Tile) => void;
     removeTile: (pageId: string, tileId: string) => void;
     addPage: (page: DashboardPage) => void;
@@ -94,6 +96,10 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         replaceTiles(pageId, (tiles) => moveTileOnGrid(tiles, tileId, rect));
     };
 
+    const resizeTile = (pageId: string, tileId: string, rect: GridRect) => {
+        replaceTiles(pageId, (tiles) => resizeTileOnGrid(tiles, tileId, rect));
+    };
+
     const addTile = (pageId: string, tile: Tile) => {
         replaceTiles(pageId, (tiles) =>
             tiles.some((candidate) => candidate.id === tile.id) ? tiles : [...tiles, tile],
@@ -157,6 +163,7 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         updatePage,
         updateTile,
         moveTile,
+        resizeTile,
         addTile,
         removeTile,
         addPage,

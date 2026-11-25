@@ -1,7 +1,7 @@
 import type { DashboardData } from './types';
 
 const DEFAULT_NOTE =
-    '这是一个可编辑的便签。进入编辑模式后，可以拖动 tile、修改标题、图标和文本。';
+    '这是一个可编辑的便签。进入编辑模式后，可以拖动 tile 换位置，拖动右下角调整大小。';
 
 export const DEFAULT_DASHBOARD: DashboardData = {
     schemaVersion: 1,
@@ -16,7 +16,7 @@ export const DEFAULT_DASHBOARD: DashboardData = {
                     type: 'clock',
                     title: '时钟',
                     icon: { kind: 'lucide', name: 'clock' },
-                    grid: { x: 0, y: 0, w: 12, h: 8 },
+                    grid: { x: 1, y: 0, w: 10, h: 6 },
                 },
             ],
         },

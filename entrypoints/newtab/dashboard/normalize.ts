@@ -1,14 +1,12 @@
 import { clampRect } from './grid';
 import { createDefaultDashboard } from './defaults';
-import {
-    GRID_COLUMNS,
-    GRID_ROWS,
-    type DashboardData,
-    type DashboardPage,
-    type IconName,
-    type IconSource,
-    type Tile,
-    type TileType,
+import type {
+    DashboardData,
+    DashboardPage,
+    IconName,
+    IconSource,
+    Tile,
+    TileType,
 } from './types';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -57,6 +55,10 @@ function normalizeTile(value: unknown): Tile | null {
         title: value.title,
         icon: normalizeIcon(value.icon),
         grid: clampRect(grid),
+        template:
+            typeof value.template === 'string' && value.template.length > 0
+                ? value.template
+                : undefined,
     };
 
     if (value.type === 'link') {
@@ -108,4 +110,3 @@ export function normalizeDashboard(value: unknown): DashboardData {
     };
 }
 
-export const DASHBOARD_GRID = { columns: GRID_COLUMNS, rows: GRID_ROWS };

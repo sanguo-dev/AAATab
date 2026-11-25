@@ -1,12 +1,12 @@
 import { Show, createSignal } from 'solid-js';
 
-import NewTabShell from '@/components/layout/NewTabShell';
-import { DashboardProvider, useDashboard } from '@/utils/dashboard/use-dashboard';
-import type { Tile } from '@/utils/dashboard/types';
 import { SettingsProvider } from '@/utils/use-settings';
 
+import NewTabShell from './NewTabShell';
 import PageGrid from './PageGrid';
 import TileEditor from './TileEditor';
+import type { Tile } from './dashboard/types';
+import { DashboardProvider, useDashboard } from './dashboard/use-dashboard';
 
 export default function App() {
     return (
@@ -19,7 +19,7 @@ export default function App() {
 }
 
 function NewTabView() {
-    const { data, setActivePage, moveTile, updateTile, removeTile } = useDashboard();
+    const { data, setActivePage, moveTile, resizeTile, updateTile, removeTile } = useDashboard();
     const [direction, setDirection] = createSignal(1);
     const [editing, setEditing] = createSignal(false);
     const [editingTile, setEditingTile] = createSignal<Tile | null>(null);
@@ -72,6 +72,7 @@ function NewTabView() {
                     page={page()!}
                     editing={editing()}
                     onMoveTile={(tileId, rect) => moveTile(page()!.id, tileId, rect)}
+                    onResizeTile={(tileId, rect) => resizeTile(page()!.id, tileId, rect)}
                     onEditTile={(tile) => setEditingTile(tile)}
                 />
             </NewTabShell>

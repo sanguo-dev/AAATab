@@ -1,5 +1,9 @@
+/** 固定列数。 */
 export const GRID_COLUMNS = 12;
-export const GRID_ROWS = 8;
+/** 单个格子的边长（正方形，固定 120×120）。 */
+export const GRID_CELL_SIZE = 120;
+/** 格子之间的间距。 */
+export const GRID_GAP = 12;
 
 export interface GridRect {
     x: number;
@@ -22,7 +26,10 @@ export interface TileBase {
     type: TileType;
     title: string;
     icon?: IconSource;
+    /** 占用的格子：左上角 x/y，宽高 w/h。y 不设上限，页面会随之增长。 */
     grid: GridRect;
+    /** 显式指定的模板 id；省略时按尺寸自动选择。 */
+    template?: string;
 }
 
 export interface ClockTile extends TileBase {

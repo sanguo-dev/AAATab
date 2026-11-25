@@ -11,6 +11,8 @@ export default defineConfig({
     vite: () => ({
         // @solidjs/vite-plugin is the Solid 2 replacement for vite-plugin-solid.
         plugins: [solid(), tailwindcss()],
+        // UI SDK core must not be pre-bundled separately from @ui-sdk/solid.
+        optimizeDeps: { exclude: ["@ui-sdk/core"] },
         build: {
             // Solid 2 compiles to modern syntax.
             target: "esnext",

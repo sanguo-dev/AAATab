@@ -1,4 +1,4 @@
-import OptionsShell, { type SettingsTab } from '@/components/layout/OptionsShell';
+import OptionsShell, { type SettingsTab } from './OptionsShell';
 import { SettingsProvider } from '@/utils/use-settings';
 
 import { Router } from './router';

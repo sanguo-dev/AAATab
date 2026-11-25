@@ -3,7 +3,7 @@
 A browser new tab page built with [WXT](https://wxt.dev/) and
 [Solid 2](https://docs.solidjs.com/) (`solid-js` + `@solidjs/web`).
 
-- Styling: [Tailwind CSS 4](https://tailwindcss.com/) + [daisyUI 5](https://daisyui.com/)
+- Styling: [Tailwind CSS 4](https://tailwindcss.com/) + [solid-ui-next](https://github.com/stefan-karger/solid-ui-next) components (Solid 2 + UI SDK)
 - Icons: [`@lucide/solid`](https://lucide.dev/guide/solid/getting-started), the Lucide package for Solid 2
 - Routing: `@solidjs/router` 2 with `hashHistory()` on the options page only; the new tab pager is plain state, no URL changes
 - Page transitions: [anime.js](https://animejs.com/) 4
@@ -14,33 +14,57 @@ Settings live on the extension's options page: set your name and choose
 whether to show the greeting, clock, and date. The gear on the new tab page
 opens that page directly.
 
+## Project layout
+
+`components/` holds the vendored solid-ui-next library and nothing else:
+
+- `components/ui/` — component source copied from solid-ui-next (commit
+  `f2470e12c40886a4d9ae4973d32050d9455b1e8f`); imports are rewritten from `~/`
+  to `@/components/`
+- `components/ui/styles/` — `theme.css` (style-nova) and `solid-ui.css`
+  (shared state variants, animations and masks)
+- `lib/utils.ts` — shadcn-style `cn()` helper (`clsx` + `tailwind-merge`),
+  imported as `@/lib/utils`
+
+Files that belong to one entrypoint stay next to it:
+
+- `entrypoints/newtab/` — new tab app: shell, grid, editor, tiles, dashboard data
+- `entrypoints/options/` — options app: shell, pages and the `Toggle` row used
+  only by the settings pages
+
 ## Pages and routes
 
 New tab (`newtab.html`, no routing):
 
-- First page — clock, date, greeting
-- Second page — full-screen content page
-- Mouse wheel, page dots, and anime.js transitions move between pages
+- Pages are data, not files: `entrypoints/newtab/dashboard/defaults.ts` ships two
+- Each page is a 12-column grid of fixed 120×120 px cells, 12 px gap; the
+  grid scrolls horizontally when the window is narrower than it
+- Every tile stores `grid: {x, y, w, h}`; rows grow with content and the page scrolls
+- The wheel scrolls the page first and turns the page only at the top/bottom;
+  dots switch pages directly
+- anime.js transitions between pages
 
 Options (`options.html`, hash history, sidebar):
 
 - `#/` — general settings
 - `#/newtab` — new tab display settings
 
-## Dashboard foundation
+## New tab dashboard
 
-- `utils/dashboard/types.ts` — pages, tiles, icon sources, grid rects
-- `utils/dashboard/defaults.ts` — default dashboard data
-- `utils/dashboard/grid.ts` — grid clamp/overlap/move/compact math
-- `utils/dashboard/normalize.ts` — persisted-data validation and migration point
-- `utils/dashboard/storage.ts` — `storage.local` item
-- `utils/dashboard/use-dashboard.tsx` — provider and commands
-  (`setActivePage`, `moveTile`, `updateTile`, `addTile`, `removeTile`,
-  `addPage`, `removePage`, `movePage`)
-- `entrypoints/newtab/PageGrid.tsx` + `components/tiles/` — data-driven grid
-  and tile renderers (tile registry, no per-page switch)
+- `entrypoints/newtab/dashboard/types.ts` — pages, tiles, icon sources, grid rects, cell constants
+- `entrypoints/newtab/dashboard/defaults.ts` — default dashboard data
+- `entrypoints/newtab/dashboard/grid.ts` — clamp and push-on-collision placement
+- `entrypoints/newtab/dashboard/normalize.ts` — persisted-data validation and migration point
+- `entrypoints/newtab/dashboard/storage.ts` — `storage.local` item
+- `entrypoints/newtab/dashboard/use-dashboard.tsx` — provider and commands
+  (`setActivePage`, `moveTile`, `resizeTile`, `updateTile`, `addTile`,
+  `removeTile`, `addPage`, `removePage`, `movePage`)
+- `entrypoints/newtab/PageGrid.tsx` — measured grid, drag move, corner resize
+- `entrypoints/newtab/tiles/registry.tsx` — type → templates: auto-selected by
+  tile size, `tile.template` overrides
 
-Adding a page or tile is data, not a new page file.
+Adding a page or tile is data, not a new page file. Moving a tile pushes
+overlapping tiles downward instead of rejecting the move.
 
 ## Development
 
