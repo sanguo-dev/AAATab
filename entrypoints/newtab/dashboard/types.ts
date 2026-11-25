@@ -1,6 +1,6 @@
-/** 固定列数。 */
+/** 列数。 */
 export const GRID_COLUMNS = 12;
-/** 单个格子的边长（正方形，固定 120×120）。 */
+/** 单个格子的边长（正方形，120×120）。 */
 export const GRID_CELL_SIZE = 120;
 /** 格子之间的间距。 */
 export const GRID_GAP = 12;

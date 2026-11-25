@@ -63,7 +63,15 @@ function normalizeTile(value: unknown): Tile | null {
 
     if (value.type === 'link') {
         if (typeof value.url !== 'string') return null;
-        return { ...base, type: 'link', url: value.url };
+        // Link tiles are always one 120×120 cell; drop legacy multi-cell sizes
+        // and the old card/bar/icon templates.
+        return {
+            ...base,
+            type: 'link',
+            url: value.url,
+            template: undefined,
+            grid: { ...base.grid, w: 1, h: 1 },
+        };
     }
 
     if (value.type === 'note') {

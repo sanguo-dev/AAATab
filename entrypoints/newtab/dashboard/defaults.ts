@@ -38,7 +38,7 @@ export const DEFAULT_DASHBOARD: DashboardData = {
                     title: 'GitHub',
                     url: 'https://github.com',
                     icon: { kind: 'lucide', name: 'link' },
-                    grid: { x: 7, y: 1, w: 2, h: 2 },
+                    grid: { x: 7, y: 1, w: 1, h: 1 },
                 },
                 {
                     id: 'tile-link-bilibili',
@@ -46,7 +46,7 @@ export const DEFAULT_DASHBOARD: DashboardData = {
                     title: '哔哩哔哩',
                     url: 'https://www.bilibili.com',
                     icon: { kind: 'lucide', name: 'sparkles' },
-                    grid: { x: 9, y: 1, w: 2, h: 2 },
+                    grid: { x: 8, y: 1, w: 1, h: 1 },
                 },
                 {
                     id: 'tile-link-figma',
@@ -54,7 +54,7 @@ export const DEFAULT_DASHBOARD: DashboardData = {
                     title: 'Figma',
                     url: 'https://www.figma.com',
                     icon: { kind: 'lucide', name: 'layout-grid' },
-                    grid: { x: 7, y: 3, w: 2, h: 2 },
+                    grid: { x: 9, y: 1, w: 1, h: 1 },
                 },
             ],
         },
