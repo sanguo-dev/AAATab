@@ -6,6 +6,7 @@ export interface Settings {
   showClock: boolean;
   showDate: boolean;
   showGreeting: boolean;
+  showPageDots: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -13,6 +14,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showClock: true,
   showDate: true,
   showGreeting: true,
+  showPageDots: true,
 };
 
 export const settingsItem = storage.defineItem<Settings>('local:settings', {

@@ -41,6 +41,12 @@ export default function NewTabPage() {
                         checked={settings().showDate}
                         onChange={(showDate) => update({ showDate })}
                     />
+                    <Toggle
+                        label="显示页码"
+                        description="滚动或切换页面时短暂显示底部的页码指示器。"
+                        checked={settings().showPageDots}
+                        onChange={(showPageDots) => update({ showPageDots })}
+                    />
                 </CardContent>
             </Card>
 

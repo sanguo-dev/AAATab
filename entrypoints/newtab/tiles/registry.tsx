@@ -40,8 +40,8 @@ export const TILE_REGISTRY: Record<TileType, TileDefinition> = {
     clock: {
         type: 'clock',
         label: '时钟',
-        defaultSize: { w: 10, h: 6 },
-        defaultTemplate: 'default',
+        defaultSize: { w: 1, h: 1 },
+        defaultTemplate: 'compact',
         templates: [
             { name: 'default', label: '完整', minW: 3, minH: 2, render: () => <ClockTile /> },
             { name: 'compact', label: '紧凑', minW: 1, minH: 1, render: () => <ClockTile compact /> },

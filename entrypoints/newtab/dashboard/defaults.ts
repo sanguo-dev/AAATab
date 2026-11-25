@@ -1,8 +1,5 @@
 import type { DashboardData } from './types';
 
-const DEFAULT_NOTE =
-    '这是一个可编辑的便签。进入编辑模式后，可以拖动 tile 换位置，拖动右下角调整大小。';
-
 export const DEFAULT_DASHBOARD: DashboardData = {
     schemaVersion: 1,
     activePageId: 'home',
@@ -16,7 +13,7 @@ export const DEFAULT_DASHBOARD: DashboardData = {
                     type: 'clock',
                     title: '时钟',
                     icon: { kind: 'lucide', name: 'clock' },
-                    grid: { x: 1, y: 0, w: 10, h: 6 },
+                    grid: { x: 0, y: 0, w: 1, h: 1 },
                 },
             ],
         },
@@ -24,14 +21,6 @@ export const DEFAULT_DASHBOARD: DashboardData = {
             id: 'second',
             title: '第二页',
             tiles: [
-                {
-                    id: 'tile-note-example',
-                    type: 'note',
-                    title: '拖动 / 编辑示例',
-                    text: DEFAULT_NOTE,
-                    icon: { kind: 'lucide', name: 'sparkles' },
-                    grid: { x: 1, y: 1, w: 6, h: 4 },
-                },
                 {
                     id: 'tile-link-github',
                     type: 'link',

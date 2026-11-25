@@ -1,11 +1,10 @@
-import { Show, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { SettingsProvider } from '@/utils/use-settings';
 
 import NewTabShell from './NewTabShell';
 import PageGrid from './PageGrid';
-import TileEditor from './TileEditor';
-import type { Tile } from './dashboard/types';
 import { DashboardProvider, useDashboard } from './dashboard/use-dashboard';
 
 export default function App() {
@@ -19,10 +18,9 @@ export default function App() {
 }
 
 function NewTabView() {
-    const { data, setActivePage, moveTile, resizeTile, updateTile, removeTile } = useDashboard();
+    const { data, setActivePage, removeTile } = useDashboard();
     const [direction, setDirection] = createSignal(1);
     const [editing, setEditing] = createSignal(false);
-    const [editingTile, setEditingTile] = createSignal<Tile | null>(null);
 
     const pages = () => data().pages;
     const index = () => Math.max(0, pages().findIndex((page) => page.id === data().activePageId));
@@ -35,58 +33,27 @@ function NewTabView() {
         setActivePage(target.id);
     };
 
-    const toggleEditing = () => {
-        setEditing((value) => !value);
-        setEditingTile(null);
-    };
-
-    const saveTile = (patch: Parameters<typeof updateTile>[2]) => {
-        const tile = editingTile();
-        const currentPage = page();
-        if (!tile || !currentPage) return;
-
-        updateTile(currentPage.id, tile.id, patch);
-        setEditingTile(null);
-    };
-
-    const deleteTile = () => {
-        const tile = editingTile();
-        const currentPage = page();
-        if (!tile || !currentPage) return;
-
-        removeTile(currentPage.id, tile.id);
-        setEditingTile(null);
-    };
-
     return (
-        <>
-            <NewTabShell
-                pages={pages()}
-                index={index()}
-                direction={direction()}
-                editing={editing()}
-                onIndexChange={changePage}
-                onToggleEditing={toggleEditing}
-            >
-                <PageGrid
-                    page={page()!}
+        <ContextMenu>
+            <ContextMenuTrigger class="block">
+                <NewTabShell
+                    pages={pages()}
+                    index={index()}
+                    direction={direction()}
                     editing={editing()}
-                    onMoveTile={(tileId, rect) => moveTile(page()!.id, tileId, rect)}
-                    onResizeTile={(tileId, rect) => resizeTile(page()!.id, tileId, rect)}
-                    onEditTile={(tile) => setEditingTile(tile)}
-                />
-            </NewTabShell>
-
-            <Show when={editingTile()}>
-                {(tile) => (
-                    <TileEditor
-                        tile={tile()}
-                        onSave={saveTile}
-                        onDelete={deleteTile}
-                        onClose={() => setEditingTile(null)}
+                    onIndexChange={changePage}
+                >
+                    <PageGrid
+                        page={page()!}
+                        editing={editing()}
+                        onRemoveTile={(tileId) => removeTile(page()!.id, tileId)}
+                        onExitEditing={() => setEditing(false)}
                     />
-                )}
-            </Show>
-        </>
+                </NewTabShell>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+                <ContextMenuItem onSelect={() => setEditing(true)}>编辑主页</ContextMenuItem>
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }
