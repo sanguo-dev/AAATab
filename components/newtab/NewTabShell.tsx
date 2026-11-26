@@ -6,7 +6,7 @@ import { browser } from 'wxt/browser';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useSettings } from '@/utils/use-settings';
+import { useSettings } from '@/lib/use-settings';
 
 export interface ShellPage {
     id: string;

@@ -1,6 +1,6 @@
 import { Show, createSignal, onSettled } from 'solid-js';
 
-import { useSettings } from '@/utils/use-settings';
+import { useSettings } from '@/lib/use-settings';
 
 const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 

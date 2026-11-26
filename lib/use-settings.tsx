@@ -1,7 +1,9 @@
 import type { JSX } from '@solidjs/web';
 import { createContext, createSignal, onSettled, useContext } from 'solid-js';
 
-import { DEFAULT_SETTINGS, settingsItem, type Settings } from './settings';
+import type { Settings } from '@/types/settings';
+
+import { DEFAULT_SETTINGS, settingsItem } from './settings';
 
 interface SettingsStore {
     settings: () => Settings;

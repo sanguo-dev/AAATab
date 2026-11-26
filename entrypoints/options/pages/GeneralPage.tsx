@@ -1,11 +1,10 @@
 import { UserRound } from '@lucide/solid';
 
+import Toggle from '@/components/options/Toggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useSettings } from '@/utils/use-settings';
-
-import Toggle from '@/components/options/Toggle';
+import { useSettings } from '@/lib/use-settings';
 
 export default function GeneralPage() {
     const { settings, update } = useSettings();

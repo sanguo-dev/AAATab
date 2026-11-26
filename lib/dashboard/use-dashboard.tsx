@@ -1,11 +1,12 @@
 import type { JSX } from '@solidjs/web';
 import { createContext, createSignal, onSettled, useContext } from 'solid-js';
 
+import type { DashboardData, DashboardPage, GridRect, IconSource, Tile } from '@/types/dashboard';
+
 import { createDefaultDashboard } from './defaults';
 import { moveTile as moveTileOnGrid, resizeTile as resizeTileOnGrid } from './grid';
 import { normalizeDashboard } from './normalize';
 import { dashboardItem } from './storage';
-import type { DashboardData, DashboardPage, GridRect, IconSource, Tile } from './types';
 
 export interface TilePatch {
     title?: string;

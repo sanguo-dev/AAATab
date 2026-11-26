@@ -1,4 +1,4 @@
-import type { DashboardData } from './types';
+import type { DashboardData } from '@/types/dashboard';
 
 export const DEFAULT_DASHBOARD: DashboardData = {
     schemaVersion: 1,

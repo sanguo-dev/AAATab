@@ -1,6 +1,6 @@
 import { createMemo } from 'solid-js';
 
-import type { GridRect, Tile } from '@/lib/dashboard/types';
+import type { GridRect, Tile } from '@/types/dashboard';
 import { resolveTileTemplate } from './registry';
 
 export default function TileView(props: { tile: Tile; grid?: GridRect }) {

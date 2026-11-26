@@ -6,7 +6,7 @@ import type {
     NoteTile as NoteTileData,
     Tile,
     TileType,
-} from '@/lib/dashboard/types';
+} from '@/types/dashboard';
 
 import ClockTile from './ClockTile';
 import LinkTile from './LinkTile';
@@ -34,7 +34,7 @@ export interface TileDefinition {
 
 /**
  * The tile registry is the extension point for new tile types. Add a renderer
- * here and the new type to the Tile union in lib/dashboard/types.ts.
+ * here and the new type to the Tile union in types/dashboard.ts.
  */
 export const TILE_REGISTRY: Record<TileType, TileDefinition> = {
     clock: {

@@ -1,5 +1,3 @@
-import { clampRect } from './grid';
-import { createDefaultDashboard } from './defaults';
 import type {
     DashboardData,
     DashboardPage,
@@ -7,7 +5,10 @@ import type {
     IconSource,
     Tile,
     TileType,
-} from './types';
+} from '@/types/dashboard';
+
+import { clampRect } from './grid';
+import { createDefaultDashboard } from './defaults';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null && !Array.isArray(value);

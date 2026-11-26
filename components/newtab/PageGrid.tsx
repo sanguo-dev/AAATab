@@ -16,7 +16,7 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from '@/components/ui/drawer';
-import type { DashboardPage, Tile } from '@/lib/dashboard/types';
+import type { DashboardPage, Tile } from '@/types/dashboard';
 
 import TileView from './tiles/TileView';
 

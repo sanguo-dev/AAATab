@@ -4,7 +4,7 @@ import NewTabShell from '@/components/newtab/NewTabShell';
 import PageGrid from '@/components/newtab/PageGrid';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { DashboardProvider, useDashboard } from '@/lib/dashboard/use-dashboard';
-import { SettingsProvider } from '@/utils/use-settings';
+import { SettingsProvider } from '@/lib/use-settings';
 
 export default function App() {
     return (

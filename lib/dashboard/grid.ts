@@ -1,4 +1,4 @@
-import { GRID_COLUMNS, type GridRect, type Tile } from './types';
+import { GRID_COLUMNS, type GridRect, type Tile } from '@/types/dashboard';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 

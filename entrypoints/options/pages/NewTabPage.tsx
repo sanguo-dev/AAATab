@@ -1,6 +1,7 @@
 import { AppWindow, CircleCheck, Clock3, ExternalLink } from '@lucide/solid';
 import { browser } from 'wxt/browser';
 
+import Toggle from '@/components/options/Toggle';
 import {
     Alert,
     AlertDescription,
@@ -8,9 +9,7 @@ import {
 } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSettings } from '@/utils/use-settings';
-
-import Toggle from '@/components/options/Toggle';
+import { useSettings } from '@/lib/use-settings';
 
 export default function NewTabPage() {
     const { settings, update } = useSettings();
