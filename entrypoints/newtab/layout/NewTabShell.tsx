@@ -19,6 +19,8 @@ interface NewTabShellProps {
     direction: number;
     editing: boolean;
     onIndexChange: (index: number) => void;
+    /** 编辑状态下点到 cell 以外的地方时调用（退出编辑）。 */
+    onExitEditing: () => void;
     children: JSX.Element;
 }
 
@@ -82,7 +84,8 @@ export default function NewTabShell(props: NewTabShellProps) {
         const onWheel = (event: WheelEvent) => {
             if (Math.abs(event.deltaY) < 16) return;
             flashDots();
-            if (props.editing || wheelLocked) return;
+            // 编辑状态下也能翻页：每一页都保持"cell 可删除"的编辑态。
+            if (wheelLocked) return;
 
             // 先让页面自己滚；滚到边界后再翻页。
             const atTop = element.scrollTop <= 0;
@@ -114,7 +117,13 @@ export default function NewTabShell(props: NewTabShellProps) {
     };
 
     return (
-        <main class="relative flex h-screen flex-col overflow-hidden bg-background text-foreground">
+        <main
+            class="relative flex h-screen flex-col overflow-hidden bg-background text-foreground"
+            onClick={() => {
+                // cell 自己的点击会 stopPropagation，所以这里收到的都是"其他地方"。
+                if (props.editing) props.onExitEditing();
+            }}
+        >
             <div class="tab-surface pointer-events-none absolute inset-0" aria-hidden="true" />
 
             <div class="fixed inset-x-0 top-4 z-40 flex justify-center px-[100px]">

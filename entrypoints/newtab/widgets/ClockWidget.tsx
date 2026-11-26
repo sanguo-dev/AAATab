@@ -23,7 +23,7 @@ export default function ClockWidget(_props: WidgetProps) {
     return (
         <section class="flex h-full w-full flex-col items-center justify-center overflow-hidden px-2 text-center">
             <Show when={settings().showClock}>
-                <p class="time m-0 bg-gradient-to-b from-white to-blue-200 bg-clip-text font-extralight leading-none tracking-tighter text-transparent tabular-nums text-[clamp(1.5rem,26cqmin,3.5rem)]">
+                <p class="time m-0 bg-linear-to-b from-white to-blue-200 bg-clip-text font-extralight leading-none tracking-tighter text-transparent tabular-nums text-[clamp(1.5rem,26cqmin,3.5rem)]">
                     {formatTime(now())}
                 </p>
             </Show>

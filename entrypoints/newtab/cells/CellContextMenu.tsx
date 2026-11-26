@@ -60,7 +60,13 @@ export default function CellContextMenu(props: CellContextMenuProps) {
             >
                 {props.children}
             </ContextMenuTrigger>
-            <ContextMenuContent>
+            {/*
+             * 弹层必须挂到 body 上。UI SDK 在支持 top layer 的浏览器里默认不传
+             * container，弹层就留在原地渲染（只是显示在顶层），DOM 上仍是 cell 的
+             * 子节点 —— 点菜单项时的 pointerdown 会冒泡到 cell，触发拖拽并把
+             * pointerup 误判成"点了链接"，导致整页跳转。
+             */}
+            <ContextMenuContent container={document.body}>
                 <For each={buildCellMenu(props.cell)}>
                     {(entry) => (
                         <ContextMenuItem

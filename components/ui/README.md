@@ -44,9 +44,12 @@ Consequences:
 
 ## Local edits
 
-Only user-facing text differs from the registry source:
-
 - the dialog close button's label is `关闭` instead of `Close`.
+- `drawer.tsx`'s `DrawerContent` no longer renders `<DrawerOverlay />` (the registry version
+  always does). The backdrop is a full-screen layer that covers the page and swallows
+  pointer events, which broke right-click and wheel scrolling while the drawer was open.
+  Render `<DrawerOverlay />` explicitly where a drawer really should dim the page.
+  Re-apply this after every `solidui-cli add --overwrite drawer`.
 
 Import paths need no edit: `components.json` declares the `@/` aliases, so the CLI rewrites
 `~/lib/utils` → `@/lib/utils` and `~/registry/ui/button` → `@/components/ui/button` on

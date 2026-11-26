@@ -78,6 +78,12 @@ function NewTabView() {
         setActivePage(target.id);
     };
 
+    /** 删 cell：如果抽屉正开着这个 cell，一起关掉，别留一个已经不存在的对象。 */
+    const removeCellAndDrawer = (cellId: string) => {
+        if (drawerCell()?.id === cellId) closeDrawer();
+        removeCell(page()!.id, cellId);
+    };
+
     const runCommand = (command: GlobalMenuCommand) => {
         switch (command) {
             case 'add-icon':
@@ -105,14 +111,14 @@ function NewTabView() {
                         direction={direction()}
                         editing={editing()}
                         onIndexChange={changePage}
+                        onExitEditing={() => setEditing(false)}
                     >
                         <PageGrid
                             page={page()!}
                             editing={editing()}
                             onReorderCell={(cellId, index) => reorderCell(page()!.id, cellId, index)}
-                            onRemoveCell={(cellId) => removeCell(page()!.id, cellId)}
+                            onRemoveCell={removeCellAndDrawer}
                             onEditIcon={openEdit}
-                            onExitEditing={() => setEditing(false)}
                         />
                     </NewTabShell>
                 </ContextMenuTrigger>
@@ -132,6 +138,14 @@ function NewTabView() {
 
             <Drawer
                 side="right"
+                /*
+                 * 非模态：页面照常可用——可以滚动、右键菜单（全局和 cell）都还在。
+                 * 点外面关闭要显式打开：非模态时 closeOnOutsidePress 默认是 false。
+                 * drawer 用的是 dialog 行为，outsidePress 监听的是 `click`，右键不会触发，
+                 * 所以"左键点外面关掉、右键不打扰"是天然成立的。
+                 */
+                modal={false}
+                closeOnOutsidePress
                 open={drawerMode() !== null}
                 onOpenChange={(open) => {
                     if (!open) closeDrawer();

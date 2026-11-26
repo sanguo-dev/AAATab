@@ -25,7 +25,6 @@ interface PageGridProps {
     onReorderCell: (cellId: string, toIndex: number) => void;
     onRemoveCell: (cellId: string) => void;
     onEditIcon: (cell: Cell) => void;
-    onExitEditing: () => void;
 }
 
 export default function PageGrid(props: PageGridProps) {
@@ -87,12 +86,7 @@ export default function PageGrid(props: PageGridProps) {
 
     return (
         <ctx.Provider>
-            <div
-                class="flex min-h-full w-full flex-col items-center justify-center px-[100px]"
-                onClick={() => {
-                    if (props.editing) props.onExitEditing();
-                }}
-            >
+            <div class="flex min-h-full w-full flex-col items-center justify-center px-[100px]">
                 <div class="relative flex w-full select-none flex-wrap items-center justify-center gap-3">
                     <Show when={dragActive()}>
                         <div
@@ -156,11 +150,17 @@ function SortableCell(props: SortableCellProps) {
     };
 
     const startPoint = { x: 0, y: 0 };
+    /** 这次按下是否真的落在链接上：只有它才允许在 pointerup 里补跳转。 */
+    let startedOnLink = false;
 
     const handlePointerDown = (event: PointerEvent) => {
         swallowClick = false;
         startPoint.x = event.clientX;
         startPoint.y = event.clientY;
+
+        const target = event.target;
+        startedOnLink =
+            isLinkCell(props.cell) && target instanceof Element && !!target.closest('a[href]');
     };
 
     const handlePointerUp = (event: PointerEvent) => {
@@ -176,6 +176,9 @@ function SortableCell(props: SortableCellProps) {
         if (moved || props.editing) return;
 
         // 库在 pointerdown 上调了 preventDefault，链接的点开由这里补回来。
+        // 只有按下时确实在链接上才算；弹层、按钮等子节点上的 pointerup 不跳转。
+        if (!startedOnLink) return;
+
         const cell = props.cell;
         if (!isLinkCell(cell)) return;
 
@@ -196,28 +199,35 @@ function SortableCell(props: SortableCellProps) {
     };
 
     return (
-        <div
-            ref={sortable.ref}
-            class={`relative flex-none cursor-grab touch-none ${
-                dragging() ? 'z-30 cursor-grabbing' : ''
-            }`}
-            style={style()}
-            onClick={handleClick}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-        >
-            <Show when={props.dragActive() && sortable.isActiveDropzone()}>
-                <div
-                    class="pointer-events-none absolute inset-0 z-20 rounded-3xl border-2 border-dashed border-primary/60 bg-primary/10"
-                    aria-hidden="true"
-                />
-            </Show>
+        <div class="relative flex-none" style={style()}>
+            {/*
+             * 拖拽监听器只挂在这个内层元素上（拖拽库用的是原生 pointerdown）。
+             * 删除按钮是它的兄弟节点而不是子节点：Solid 的 pointerdown 是委托到
+             * document 的，按钮上的 stopPropagation 会比拖拽库晚执行，放在里面
+             * 就会先开始拖拽、把按钮的 click 吞掉，表现为"点删除没反应"。
+             */}
+            <div
+                ref={sortable.ref}
+                class={`h-full w-full cursor-grab touch-none ${
+                    dragging() ? 'z-30 cursor-grabbing' : ''
+                }`}
+                onClick={handleClick}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+            >
+                <Show when={props.dragActive() && sortable.isActiveDropzone()}>
+                    <div
+                        class="pointer-events-none absolute inset-0 z-20 rounded-3xl border-2 border-dashed border-primary/60 bg-primary/10"
+                        aria-hidden="true"
+                    />
+                </Show>
 
-            <CellContextMenu cell={props.cell} onCommand={props.onCommand}>
-                <div class="h-full w-full" style="container-type: size;">
-                    <CellView cell={props.cell} iconOnly={props.dragActive()} />
-                </div>
-            </CellContextMenu>
+                <CellContextMenu cell={props.cell} onCommand={props.onCommand}>
+                    <div class="h-full w-full" style="container-type: size;">
+                        <CellView cell={props.cell} iconOnly={props.dragActive()} />
+                    </div>
+                </CellContextMenu>
+            </div>
 
             <Show when={props.editing}>
                 <Button
@@ -226,7 +236,6 @@ function SortableCell(props: SortableCellProps) {
                     size="icon-xs"
                     class="absolute left-[18px] top-[18px] z-40 rounded-full"
                     aria-label="删除 cell"
-                    onPointerDown={(event) => event.stopPropagation()}
                     onClick={(event) => {
                         event.stopPropagation();
                         props.onRemove();

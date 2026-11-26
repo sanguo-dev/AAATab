@@ -33,17 +33,18 @@ export function DrawerContent(
   }
 ) {
   // The SDK positions and moves the sheet. Only its contents and appearance are styled here.
+  //
+  // Local edit: the backdrop is NOT rendered here any more. It is a full-screen
+  // layer that covered the page and swallowed pointer events (right-click, wheel).
+  // Render <DrawerOverlay /> yourself when a drawer really should dim the page.
   return (
-    <>
-      <DrawerOverlay />
-      <SdkDrawerContent
-        {...props}
-        class={cn(
-          "flex h-auto flex-col bg-popover text-sm text-popover-foreground data-[side=bottom]:rounded-t-xl data-[side=bottom]:border-t data-[side=left]:rounded-r-xl data-[side=left]:border-r data-[side=right]:rounded-l-xl data-[side=right]:border-l data-[side=top]:rounded-b-xl data-[side=top]:border-b flex max-h-[90svh] flex-col data-[side=left]:max-w-sm data-[side=right]:max-w-sm",
-          props.class
-        )}
-      />
-    </>
+    <SdkDrawerContent
+      {...props}
+      class={cn(
+        "flex h-auto flex-col bg-popover text-sm text-popover-foreground data-[side=bottom]:rounded-t-xl data-[side=bottom]:border-t data-[side=left]:rounded-r-xl data-[side=left]:border-r data-[side=right]:rounded-l-xl data-[side=right]:border-l data-[side=top]:rounded-b-xl data-[side=top]:border-b flex max-h-[90svh] flex-col data-[side=left]:max-w-sm data-[side=right]:max-w-sm",
+        props.class
+      )}
+    />
   )
 }
 export function DrawerHandle(
