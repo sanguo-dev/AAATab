@@ -31,6 +31,7 @@ export default function NewTabShell(props: NewTabShellProps) {
 
     const [dotsVisible, setDotsVisible] = createSignal(false);
     let lastIndex = props.index;
+    let entered = false;
 
     const flashDots = () => {
         setDotsVisible(true);
@@ -41,7 +42,16 @@ export default function NewTabShell(props: NewTabShellProps) {
     createEffect(
         () => props.index,
         () => {
-            if (scrollRef) scrollRef.scrollTop = 0;
+            // 只有真正翻页才动。拖拽重排、编辑主页等只是 data 变了但页号没变，
+            // 不应该让内容区再滑一次，也不该把滚动位置拉回顶部。
+            const index = props.index;
+            const first = !entered;
+            if (!first && index === lastIndex) return;
+
+            lastIndex = index;
+            entered = true;
+
+            if (!first && scrollRef) scrollRef.scrollTop = 0;
             if (contentRef) {
                 animate(contentRef, {
                     opacity: [0, 1],
@@ -50,10 +60,7 @@ export default function NewTabShell(props: NewTabShellProps) {
                     ease: 'outCubic',
                 });
             }
-            if (props.index !== lastIndex) {
-                lastIndex = props.index;
-                flashDots();
-            }
+            if (!first) flashDots();
         },
     );
 
@@ -97,10 +104,13 @@ export default function NewTabShell(props: NewTabShellProps) {
         };
     });
 
+    /**
+     * 直接用 tabs.create 开新标签页，不走 runtime.openOptionsPage()：
+     * 后者在某些浏览器（以及扩展还挂着旧 manifest 时）会复用当前标签页，
+     * 表现就是"设置页盖掉了新标签页"。
+     */
     const openSettings = () => {
-        void browser.runtime.openOptionsPage().catch(() => {
-            void browser.tabs.create({ url: browser.runtime.getURL('/options.html') });
-        });
+        void browser.tabs.create({ url: browser.runtime.getURL('/options.html') });
     };
 
     return (

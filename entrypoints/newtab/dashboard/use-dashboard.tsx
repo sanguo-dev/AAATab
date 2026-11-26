@@ -1,20 +1,25 @@
 import type { JSX } from '@solidjs/web';
 import { createContext, createSignal, onSettled, useContext } from 'solid-js';
+import { storage } from 'wxt/utils/storage';
 
-import type { DashboardData, DashboardPage, GridRect, IconSource, Tile } from '@/types/dashboard';
+import type { Cell, DashboardData, DashboardPage, GridRect, IconSource } from '@/types/dashboard';
 
 import { createDefaultDashboard } from './defaults';
-import { moveTile as moveTileOnGrid, resizeTile as resizeTileOnGrid } from './grid';
+import { moveCell as moveCellOnGrid, resizeCell as resizeCellOnGrid } from './grid';
 import { normalizeDashboard } from './normalize';
-import { dashboardItem } from './storage';
 
-export interface TilePatch {
+/** 持久化条目；结构变化在 `normalize.ts` 里做迁移。 */
+const dashboardItem = storage.defineItem<DashboardData>('local:dashboard', {
+    fallback: createDefaultDashboard(),
+    version: 1,
+});
+
+/** 通用字段的补丁；kind 专属字段（url/widget/template）在各自的编辑器里处理。 */
+export interface CellPatch {
     title?: string;
     icon?: IconSource;
     grid?: GridRect;
     url?: string;
-    text?: string;
-    template?: string;
 }
 
 export interface PagePatch {
@@ -27,12 +32,12 @@ interface DashboardStore {
     activePage: () => DashboardPage | undefined;
     setActivePage: (pageId: string) => void;
     updatePage: (pageId: string, patch: PagePatch) => void;
-    updateTile: (pageId: string, tileId: string, patch: TilePatch) => void;
-    moveTile: (pageId: string, tileId: string, rect: GridRect) => void;
-    resizeTile: (pageId: string, tileId: string, rect: GridRect) => void;
-    addTile: (pageId: string, tile: Tile) => void;
-    removeTile: (pageId: string, tileId: string) => void;
-    reorderTile: (pageId: string, tileId: string, toIndex: number) => void;
+    updateCell: (pageId: string, cellId: string, patch: CellPatch) => void;
+    moveCell: (pageId: string, cellId: string, rect: GridRect) => void;
+    resizeCell: (pageId: string, cellId: string, rect: GridRect) => void;
+    addCell: (pageId: string, cell: Cell) => void;
+    removeCell: (pageId: string, cellId: string) => void;
+    reorderCell: (pageId: string, cellId: string, toIndex: number) => void;
     addPage: (page: DashboardPage) => void;
     removePage: (pageId: string) => void;
     movePage: (pageId: string, toIndex: number) => void;
@@ -68,10 +73,10 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         });
     };
 
-    const replaceTiles = (pageId: string, updater: (tiles: readonly Tile[]) => readonly Tile[]) => {
+    const replaceCells = (pageId: string, updater: (cells: readonly Cell[]) => readonly Cell[]) => {
         replacePage(pageId, (page) => {
-            const tiles = updater(page.tiles);
-            return tiles === page.tiles ? page : { ...page, tiles: [...tiles] };
+            const cells = updater(page.cells);
+            return cells === page.cells ? page : { ...page, cells: [...cells] };
         });
     };
 
@@ -88,41 +93,41 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         }));
     };
 
-    const updateTile = (pageId: string, tileId: string, patch: TilePatch) => {
-        replaceTiles(pageId, (tiles) =>
-            tiles.map((tile) => (tile.id === tileId ? ({ ...tile, ...patch } as Tile) : tile)),
+    const updateCell = (pageId: string, cellId: string, patch: CellPatch) => {
+        replaceCells(pageId, (cells) =>
+            cells.map((cell) => (cell.id === cellId ? ({ ...cell, ...patch } as Cell) : cell)),
         );
     };
 
-    const moveTile = (pageId: string, tileId: string, rect: GridRect) => {
-        replaceTiles(pageId, (tiles) => moveTileOnGrid(tiles, tileId, rect));
+    const moveCell = (pageId: string, cellId: string, rect: GridRect) => {
+        replaceCells(pageId, (cells) => moveCellOnGrid(cells, cellId, rect));
     };
 
-    const resizeTile = (pageId: string, tileId: string, rect: GridRect) => {
-        replaceTiles(pageId, (tiles) => resizeTileOnGrid(tiles, tileId, rect));
+    const resizeCell = (pageId: string, cellId: string, rect: GridRect) => {
+        replaceCells(pageId, (cells) => resizeCellOnGrid(cells, cellId, rect));
     };
 
-    const addTile = (pageId: string, tile: Tile) => {
-        replaceTiles(pageId, (tiles) =>
-            tiles.some((candidate) => candidate.id === tile.id) ? tiles : [...tiles, tile],
+    const addCell = (pageId: string, cell: Cell) => {
+        replaceCells(pageId, (cells) =>
+            cells.some((candidate) => candidate.id === cell.id) ? cells : [...cells, cell],
         );
     };
 
-    const removeTile = (pageId: string, tileId: string) => {
-        replaceTiles(pageId, (tiles) => tiles.filter((tile) => tile.id !== tileId));
+    const removeCell = (pageId: string, cellId: string) => {
+        replaceCells(pageId, (cells) => cells.filter((cell) => cell.id !== cellId));
     };
 
-    const reorderTile = (pageId: string, tileId: string, toIndex: number) => {
+    const reorderCell = (pageId: string, cellId: string, toIndex: number) => {
         replacePage(pageId, (page) => {
-            const from = page.tiles.findIndex((tile) => tile.id === tileId);
-            const to = Math.max(0, Math.min(toIndex, page.tiles.length - 1));
+            const from = page.cells.findIndex((cell) => cell.id === cellId);
+            const to = Math.max(0, Math.min(toIndex, page.cells.length - 1));
             if (from < 0 || from === to) return page;
 
-            const tiles = [...page.tiles];
-            const [tile] = tiles.splice(from, 1);
-            tiles.splice(to, 0, tile!);
+            const cells = [...page.cells];
+            const [cell] = cells.splice(from, 1);
+            cells.splice(to, 0, cell!);
 
-            return { ...page, tiles };
+            return { ...page, cells };
         });
     };
 
@@ -160,6 +165,10 @@ export function DashboardProvider(props: { children: JSX.Element }) {
 
         const unwatch = dashboardItem.watch((value) => {
             receivedUpdate = true;
+            // 本组件的写入也会从 storage 回显一次。内容没变就别再归一化：
+            // normalizeDashboard 会重建每个 cell 对象，<For> 按引用比对，
+            // 于是整块网格的 DOM 被销毁重建（拖拽松手后最明显）。
+            if (JSON.stringify(value) === JSON.stringify(current)) return;
             apply(value);
         });
         void dashboardItem.getValue().then((value) => {
@@ -177,12 +186,12 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         activePage: () => data().pages.find((page) => page.id === data().activePageId),
         setActivePage,
         updatePage,
-        updateTile,
-        moveTile,
-        resizeTile,
-        addTile,
-        removeTile,
-        reorderTile,
+        updateCell,
+        moveCell,
+        resizeCell,
+        addCell,
+        removeCell,
+        reorderCell,
         addPage,
         removePage,
         movePage,

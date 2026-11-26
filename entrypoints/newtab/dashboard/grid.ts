@@ -1,4 +1,4 @@
-import { GRID_COLUMNS, type GridRect, type Tile } from '@/types/dashboard';
+import { GRID_COLUMNS, type Cell, type GridRect } from '@/types/dashboard';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -23,41 +23,41 @@ export function sameRect(a: GridRect, b: GridRect): boolean {
 }
 
 /**
- * Places `tileId` at `rect`, pushing every overlapping tile downward until it
- * finds free space. Pushing cascades, so a moved tile can ripple through a
- * column without ever covering another tile.
+ * Places `cellId` at `rect`, pushing every overlapping cell downward until it
+ * finds free space. Pushing cascades, so a moved cell can ripple through a
+ * column without ever covering another cell.
  */
-export function applyTileRect(tiles: readonly Tile[], tileId: string, rect: GridRect): readonly Tile[] {
-    const target = tiles.find((tile) => tile.id === tileId);
-    if (!target) return tiles;
+export function applyCellRect(cells: readonly Cell[], cellId: string, rect: GridRect): readonly Cell[] {
+    const target = cells.find((cell) => cell.id === cellId);
+    if (!target) return cells;
 
     const next = clampRect(rect);
-    if (sameRect(target.grid, next)) return tiles;
+    if (sameRect(target.grid, next)) return cells;
 
-    const others = tiles
-        .filter((tile) => tile.id !== tileId)
+    const others = cells
+        .filter((cell) => cell.id !== cellId)
         .sort((a, b) => a.grid.y - b.grid.y || a.grid.x - b.grid.x);
 
-    const placed: Tile[] = [{ ...target, grid: next } as Tile];
-    const moved = new Map<string, Tile>([[target.id, placed[0]!]]);
+    const placed: Cell[] = [{ ...target, grid: next } as Cell];
+    const moved = new Map<string, Cell>([[target.id, placed[0]!]]);
 
-    for (const tile of others) {
-        let y = tile.grid.y;
+    for (const cell of others) {
+        let y = cell.grid.y;
 
         for (;;) {
-            const conflict = placed.find((candidate) => rectsOverlap({ ...tile.grid, y }, candidate.grid));
+            const conflict = placed.find((candidate) => rectsOverlap({ ...cell.grid, y }, candidate.grid));
             if (!conflict) break;
             y = conflict.grid.y + conflict.grid.h;
         }
 
-        placed.push({ ...tile, grid: { ...tile.grid, y } } as Tile);
-        if (y !== tile.grid.y) {
-            moved.set(tile.id, placed[placed.length - 1]!);
+        placed.push({ ...cell, grid: { ...cell.grid, y } } as Cell);
+        if (y !== cell.grid.y) {
+            moved.set(cell.id, placed[placed.length - 1]!);
         }
     }
 
-    return tiles.map((tile) => moved.get(tile.id) ?? tile);
+    return cells.map((cell) => moved.get(cell.id) ?? cell);
 }
 
-export const moveTile = applyTileRect;
-export const resizeTile = applyTileRect;
+export const moveCell = applyCellRect;
+export const resizeCell = applyCellRect;

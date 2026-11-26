@@ -9,12 +9,9 @@ export default function App() {
         window.close();
     };
 
+    /** 同 newtab：固定新开标签页，不依赖 openOptionsPage() 的浏览器差异。 */
     const openSettings = async () => {
-        try {
-            await browser.runtime.openOptionsPage();
-        } catch {
-            await browser.tabs.create({ url: browser.runtime.getURL('/options.html') });
-        }
+        await browser.tabs.create({ url: browser.runtime.getURL('/options.html') });
         window.close();
     };
 

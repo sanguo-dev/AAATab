@@ -5,26 +5,15 @@ import {
     createSortable,
     type DragContextReturn,
 } from '@solid-primitives/drag-drop';
-import { For, Show, createEffect, createSignal } from 'solid-js';
+import { For, Show, createSignal } from 'solid-js';
 import { browser } from 'wxt/browser';
 
 import { Button } from '@/components/ui/button';
-import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuTrigger,
-} from '@/components/ui/context-menu';
-import {
-    Drawer,
-    DrawerContent,
-    DrawerDescription,
-    DrawerHeader,
-    DrawerTitle,
-} from '@/components/ui/drawer';
-import { GRID_CELL_SIZE, type DashboardPage, type Tile } from '@/types/dashboard';
+import { isLinkCell } from './dashboard/cell-kinds';
+import { GRID_CELL_SIZE, type Cell, type DashboardPage } from '@/types/dashboard';
 
-import TileView from './tiles/TileView';
+import CellContextMenu, { type CellMenuCommand } from './cells/CellContextMenu';
+import CellView from './cells/CellView';
 
 const CELL_STYLE = `width: ${GRID_CELL_SIZE}px; height: ${GRID_CELL_SIZE}px`;
 /** 指针位移小于这个值就当作点击，而不是拖拽。 */
@@ -33,8 +22,9 @@ const CLICK_SLOP = 6;
 interface PageGridProps {
     page: DashboardPage;
     editing: boolean;
-    onReorderTile: (tileId: string, toIndex: number) => void;
-    onRemoveTile: (tileId: string) => void;
+    onReorderCell: (cellId: string, toIndex: number) => void;
+    onRemoveCell: (cellId: string) => void;
+    onEditIcon: (cell: Cell) => void;
     onExitEditing: () => void;
 }
 
@@ -57,31 +47,42 @@ export default function PageGrid(props: PageGridProps) {
             const moved = !!transform && Math.hypot(transform.x, transform.y) > CLICK_SLOP;
             if (!moved) return;
 
-            const toIndex = props.page.tiles.findIndex((tile) => tile.id === over.id);
+            const toIndex = props.page.cells.findIndex((cell) => cell.id === over.id);
             if (toIndex < 0) return;
 
-            props.onReorderTile(String(item.id), toIndex);
+            props.onReorderCell(String(item.id), toIndex);
         },
         onDragCancel: () => {
             setDragActive(false);
         },
     });
 
-    const [drawerTile, setDrawerTile] = createSignal<Tile | null>(null);
-
-    createEffect(
-        () => props.page.id,
-        () => {
-            setDrawerTile(null);
-        },
-    );
-
-    const openInCurrentTab = (tile: Tile) => {
-        if (tile.type === 'link') window.location.assign(tile.url);
+    const openInCurrentTab = (cell: Cell) => {
+        if (!isLinkCell(cell)) return;
+        window.location.assign(cell.url);
     };
 
-    const openInNewTab = (tile: Tile) => {
-        if (tile.type === 'link') void browser.tabs.create({ url: tile.url });
+    const openInNewTab = (cell: Cell) => {
+        if (!isLinkCell(cell)) return;
+        void browser.tabs.create({ url: cell.url });
+    };
+
+    /** 通用右键菜单的唯一出口：菜单项只发命令，做什么由这里决定。 */
+    const runCommand = (cell: Cell, command: CellMenuCommand) => {
+        switch (command) {
+            case 'open-current':
+                openInCurrentTab(cell);
+                return;
+            case 'open-new':
+                openInNewTab(cell);
+                return;
+            case 'edit-icon':
+                props.onEditIcon(cell);
+                return;
+            case 'delete':
+                props.onRemoveCell(cell.id);
+                return;
+        }
     };
 
     return (
@@ -98,7 +99,7 @@ export default function PageGrid(props: PageGridProps) {
                             class="pointer-events-none absolute inset-0 z-0 flex flex-wrap items-center justify-center gap-3"
                             aria-hidden="true"
                         >
-                            <For each={props.page.tiles}>
+                            <For each={props.page.cells}>
                                 {() => (
                                     <div
                                         class="flex-none rounded-3xl border border-foreground/10 bg-foreground/5"
@@ -109,57 +110,33 @@ export default function PageGrid(props: PageGridProps) {
                         </div>
                     </Show>
 
-                    <For each={props.page.tiles}>
-                        {(tile) => (
-                            <SortableTile
-                                tile={tile}
+                    <For each={props.page.cells}>
+                        {(cell) => (
+                            <SortableCell
+                                cell={cell}
                                 editing={props.editing}
                                 dragActive={dragActive}
-                                onRemove={() => props.onRemoveTile(tile.id)}
-                                onEditIcon={() => setDrawerTile(tile)}
-                                onOpenCurrent={() => openInCurrentTab(tile)}
-                                onOpenNew={() => openInNewTab(tile)}
+                                onRemove={() => props.onRemoveCell(cell.id)}
+                                onCommand={(command) => runCommand(cell, command)}
                             />
                         )}
                     </For>
                 </div>
-
-                <Drawer
-                    side="right"
-                    open={drawerTile() !== null}
-                    onOpenChange={(open) => {
-                        if (!open) setDrawerTile(null);
-                    }}
-                >
-                    <DrawerContent class="h-dvh max-h-dvh">
-                        <DrawerHeader>
-                            <DrawerTitle>编辑图标</DrawerTitle>
-                            <DrawerDescription>
-                                {drawerTile()?.title ?? '选择一个图标'}
-                            </DrawerDescription>
-                        </DrawerHeader>
-                        <div class="flex-1 p-4 text-sm text-muted-foreground">
-                            图标编辑功能待实现。
-                        </div>
-                    </DrawerContent>
-                </Drawer>
             </div>
         </ctx.Provider>
     );
 }
 
-interface SortableTileProps {
-    tile: Tile;
+interface SortableCellProps {
+    cell: Cell;
     editing: boolean;
     dragActive: () => boolean;
     onRemove: () => void;
-    onEditIcon: () => void;
-    onOpenCurrent: () => void;
-    onOpenNew: () => void;
+    onCommand: (command: CellMenuCommand) => void;
 }
 
-function SortableTile(props: SortableTileProps) {
-    const sortable = createSortable(props.tile.id, props.tile);
+function SortableCell(props: SortableCellProps) {
+    const sortable = createSortable(props.cell.id, props.cell);
     let swallowClick = false;
 
     const dragging = () => props.dragActive() && sortable.isDragging();
@@ -199,13 +176,14 @@ function SortableTile(props: SortableTileProps) {
         if (moved || props.editing) return;
 
         // 库在 pointerdown 上调了 preventDefault，链接的点开由这里补回来。
-        if (props.tile.type !== 'link') return;
+        const cell = props.cell;
+        if (!isLinkCell(cell)) return;
 
         event.preventDefault();
         if (event.ctrlKey || event.metaKey) {
-            void browser.tabs.create({ url: props.tile.url });
+            void browser.tabs.create({ url: cell.url });
         } else {
-            window.location.assign(props.tile.url);
+            window.location.assign(cell.url);
         }
     };
 
@@ -235,32 +213,11 @@ function SortableTile(props: SortableTileProps) {
                 />
             </Show>
 
-            <ContextMenu>
-                <ContextMenuTrigger
-                    data-cell-menu
-                    class="block h-full w-full"
-                    onContextMenu={(event) => event.stopPropagation()}
-                >
-                    <div class="h-full w-full" style="container-type: size;">
-                        <TileView tile={props.tile} />
-                    </div>
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                    <ContextMenuItem
-                        disabled={props.tile.type !== 'link'}
-                        onSelect={props.onOpenCurrent}
-                    >
-                        当前页打开
-                    </ContextMenuItem>
-                    <ContextMenuItem disabled={props.tile.type !== 'link'} onSelect={props.onOpenNew}>
-                        新标签打开
-                    </ContextMenuItem>
-                    <ContextMenuItem onSelect={props.onEditIcon}>编辑图标</ContextMenuItem>
-                    <ContextMenuItem variant="destructive" onSelect={props.onRemove}>
-                        删除
-                    </ContextMenuItem>
-                </ContextMenuContent>
-            </ContextMenu>
+            <CellContextMenu cell={props.cell} onCommand={props.onCommand}>
+                <div class="h-full w-full" style="container-type: size;">
+                    <CellView cell={props.cell} iconOnly={props.dragActive()} />
+                </div>
+            </CellContextMenu>
 
             <Show when={props.editing}>
                 <Button

@@ -16,4 +16,5 @@
 - `@ui-sdk/solid` 与 `@ui-sdk/core` 必须保持同一版本 `0.1.0-beta.17`，升级时一起改。
 - `components/` 只放 `ui/`（solid-ui 源码）和跨页面通用的 `layout/`；页面布局外壳放 `entrypoints/<page>/layout/`，其余页面专用组件放对应 `entrypoints/<page>/`。
 - `entrypoints/` 放各页面的入口文件（`main.tsx`、`App.tsx`、`index.html`）、路由与页面、页面专用组件以及页面逻辑。
-- 不再使用 `utils/` 目录：共享代码放 `lib/`（如 `lib/settings.ts`、`lib/dashboard/`），共享类型放 `types/`。
+- 不再使用 `utils/` 目录：共享代码放 `lib/`（如 `lib/settings.ts`、`lib/use-settings.tsx`），共享类型放 `types/`。
+- 只服务单个页面的逻辑放对应 `entrypoints/<page>/`：例如 dashboard 的 store/归一化/grid 计算都在 `entrypoints/newtab/dashboard/`，只有被两个及以上页面用到的才上提到 `lib/`。

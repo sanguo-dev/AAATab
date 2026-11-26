@@ -12,51 +12,69 @@ export interface GridRect {
     h: number;
 }
 
-export type IconName = 'clock' | 'layout-grid' | 'link' | 'sparkles';
-
+/**
+ * cell 图标只有三种来源：
+ * - `favicon`：由 cell 的地址取站点图标（扩展 manifest 的 favicon 能力；Firefox 走 /favicon.ico）；
+ * - `solid`：纯色块；
+ * - `upload`：用户上传的图片（先占位，选择器和存储都还没做）。
+ */
 export type IconSource =
-    | { kind: 'lucide'; name: IconName }
-    | { kind: 'emoji'; value: string }
-    | { kind: 'image'; src: string };
+    | { kind: 'favicon' }
+    | { kind: 'solid'; color: string }
+    | { kind: 'upload' };
 
-export type TileType = 'clock' | 'link' | 'note';
+/**
+ * cell 只有三种：
+ * - `link`：一个链接，图标 + 标题，另有"当前页/新标签打开"；
+ * - `widget`：系统提供的小组件，由 `widget` id 决定渲染什么，目前只有时间；
+ * - `custom`：自定义 cell，由 `template` id 决定模板，未注册的 id 回退到默认模板。
+ *
+ * 具体的 id 列表和渲染实现分别放在 `entrypoints/newtab/dashboard/cell-kinds.ts` 和
+ * `entrypoints/newtab/cells/` 的注册表里；这里只定义存下来的形状。
+ */
+export type CellKind = 'link' | 'widget' | 'custom';
 
-export interface TileBase {
+/** 系统内置小组件 id，例如 `clock`。未实现的 id 会渲染占位，不会被丢弃。 */
+export type WidgetId = string;
+
+/** 自定义 cell 的模板 id。 */
+export type CustomTemplateId = string;
+
+export interface CellBase {
     id: string;
-    type: TileType;
     title: string;
     icon?: IconSource;
     /** 占用的格子：左上角 x/y，宽高 w/h。y 不设上限，页面会随之增长。 */
     grid: GridRect;
-    /** 显式指定的模板 id；省略时按尺寸自动选择。 */
-    template?: string;
 }
 
-export interface ClockTile extends TileBase {
-    type: 'clock';
-}
-
-export interface LinkTile extends TileBase {
-    type: 'link';
+export interface LinkCell extends CellBase {
+    kind: 'link';
     url: string;
 }
 
-export interface NoteTile extends TileBase {
-    type: 'note';
-    text: string;
+export interface WidgetCell extends CellBase {
+    kind: 'widget';
+    widget: WidgetId;
 }
 
-export type Tile = ClockTile | LinkTile | NoteTile;
+export interface CustomCell extends CellBase {
+    kind: 'custom';
+    template: CustomTemplateId;
+}
+
+export type Cell = LinkCell | WidgetCell | CustomCell;
 
 export interface DashboardPage {
     id: string;
     title: string;
     icon?: IconSource;
-    tiles: Tile[];
+    cells: Cell[];
 }
 
 export interface DashboardData {
-    schemaVersion: 1;
+    /** 1 = 旧的 `tiles` + `type` 结构，2 = 当前的 `cells` + `kind` 结构。 */
+    schemaVersion: 2;
     activePageId: string;
     pages: DashboardPage[];
 }

@@ -1,14 +1,16 @@
 import type {
+    Cell,
+    CustomCell,
     DashboardData,
     DashboardPage,
-    IconName,
     IconSource,
-    Tile,
-    TileType,
+    LinkCell,
+    WidgetCell,
 } from '@/types/dashboard';
 
-import { clampRect } from './grid';
+import { DEFAULT_CUSTOM_TEMPLATE, isCellKind } from './cell-kinds';
 import { createDefaultDashboard } from './defaults';
+import { clampRect } from './grid';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -16,86 +18,105 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isNumber = (value: unknown): value is number =>
     typeof value === 'number' && Number.isFinite(value);
 
-const ICON_NAMES: IconName[] = ['clock', 'layout-grid', 'link', 'sparkles'];
-const TILE_TYPES: TileType[] = ['clock', 'link', 'note'];
+/** 旧结构里的 `type` 字段。 */
+const LEGACY_TYPES = ['clock', 'link', 'note'] as const;
+
+type LegacyType = (typeof LEGACY_TYPES)[number];
 
 function normalizeIcon(value: unknown): IconSource | undefined {
     if (!isRecord(value)) return undefined;
 
-    if (value.kind === 'lucide' && typeof value.name === 'string') {
-        const name = ICON_NAMES.find((candidate) => candidate === value.name);
-        return name ? { kind: 'lucide', name } : undefined;
+    if (value.kind === 'favicon') return { kind: 'favicon' };
+
+    if (value.kind === 'solid' && typeof value.color === 'string') {
+        return { kind: 'solid', color: value.color };
     }
 
-    if (value.kind === 'emoji' && typeof value.value === 'string') {
-        return { kind: 'emoji', value: value.value };
-    }
-
-    if (value.kind === 'image' && typeof value.src === 'string') {
-        return { kind: 'image', src: value.src };
-    }
+    // 用户上传还没做，先只保留"是上传"这个事实。
+    if (value.kind === 'upload') return { kind: 'upload' };
 
     return undefined;
 }
 
-function normalizeTile(value: unknown): Tile | null {
-    if (!isRecord(value)) return null;
+type CellBaseFields = Pick<Cell, 'id' | 'title' | 'icon' | 'grid'>;
+
+function normalizeBase(value: Record<string, unknown>): CellBaseFields | null {
     if (typeof value.id !== 'string' || typeof value.title !== 'string') return null;
-    if (!TILE_TYPES.includes(value.type as TileType)) return null;
     if (!isRecord(value.grid)) return null;
 
-    const grid = {
-        x: isNumber(value.grid.x) ? value.grid.x : 0,
-        y: isNumber(value.grid.y) ? value.grid.y : 0,
-        w: isNumber(value.grid.w) ? value.grid.w : 1,
-        h: isNumber(value.grid.h) ? value.grid.h : 1,
-    };
-
-    const base = {
+    return {
         id: value.id,
         title: value.title,
         icon: normalizeIcon(value.icon),
-        grid: clampRect(grid),
-        template:
-            typeof value.template === 'string' && value.template.length > 0
-                ? value.template
-                : undefined,
+        grid: clampRect({
+            x: isNumber(value.grid.x) ? value.grid.x : 0,
+            y: isNumber(value.grid.y) ? value.grid.y : 0,
+            w: isNumber(value.grid.w) ? value.grid.w : 1,
+            h: isNumber(value.grid.h) ? value.grid.h : 1,
+        }),
     };
+}
 
-    if (value.type === 'link') {
-        if (typeof value.url !== 'string') return null;
-        // Link tiles are always one 120×120 cell; drop legacy multi-cell sizes
-        // and the old card/bar/icon templates.
-        return {
-            ...base,
-            type: 'link',
-            url: value.url,
-            template: undefined,
-            grid: { ...base.grid, w: 1, h: 1 },
-        };
+function linkCell(base: CellBaseFields, url: unknown): LinkCell | null {
+    if (typeof url !== 'string') return null;
+
+    // 链接 cell 固定一格：丢掉旧的多格尺寸。
+    return { ...base, kind: 'link', url, grid: { ...base.grid, w: 1, h: 1 } };
+}
+
+function widgetCell(base: CellBaseFields, widget: unknown): WidgetCell {
+    // 未知 id 不丢：渲染层会退回占位，等对应小组件实现后再出现。
+    return { ...base, kind: 'widget', widget: typeof widget === 'string' && widget ? widget : 'clock' };
+}
+
+function customCell(base: CellBaseFields, template: unknown): CustomCell {
+    return {
+        ...base,
+        kind: 'custom',
+        template:
+            typeof template === 'string' && template.length > 0 ? template : DEFAULT_CUSTOM_TEMPLATE,
+    };
+}
+
+function normalizeCell(value: unknown): Cell | null {
+    if (!isRecord(value)) return null;
+
+    const base = normalizeBase(value);
+    if (!base) return null;
+
+    // 当前结构：kind 决定分支。
+    if (isCellKind(value.kind)) {
+        if (value.kind === 'link') return linkCell(base, value.url);
+        if (value.kind === 'widget') return widgetCell(base, value.widget);
+        return customCell(base, value.template);
     }
 
-    if (value.type === 'note') {
-        if (typeof value.text !== 'string') return null;
-        return { ...base, type: 'note', text: value.text };
+    // 旧结构：type 迁移到 kind。
+    const legacy = LEGACY_TYPES.find((type) => type === value.type) as LegacyType | undefined;
+    switch (legacy) {
+        case 'link':
+            return linkCell(base, value.url);
+        case 'clock':
+            return widgetCell(base, 'clock');
+        case 'note':
+            return customCell(base, DEFAULT_CUSTOM_TEMPLATE);
+        default:
+            return null;
     }
-
-    return { ...base, type: 'clock' };
 }
 
 function normalizePage(value: unknown): DashboardPage | null {
     if (!isRecord(value)) return null;
     if (typeof value.id !== 'string' || typeof value.title !== 'string') return null;
 
-    const tiles = Array.isArray(value.tiles)
-        ? value.tiles.map(normalizeTile).filter((tile): tile is Tile => tile !== null)
-        : [];
+    // 旧数据把数组存在 `tiles` 里。
+    const raw = Array.isArray(value.cells) ? value.cells : Array.isArray(value.tiles) ? value.tiles : [];
 
     return {
         id: value.id,
         title: value.title,
         icon: normalizeIcon(value.icon),
-        tiles,
+        cells: raw.map(normalizeCell).filter((cell): cell is Cell => cell !== null),
     };
 }
 
@@ -113,9 +134,8 @@ export function normalizeDashboard(value: unknown): DashboardData {
     const activePageId = pages.some((page) => page.id === requestedActive) ? requestedActive : pages[0]!.id;
 
     return {
-        schemaVersion: 1,
+        schemaVersion: 2,
         activePageId,
         pages,
     };
 }
-
