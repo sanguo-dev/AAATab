@@ -1,4 +1,4 @@
-import { For, createEffect, createSignal } from 'solid-js';
+import { For, Show, createEffect, createSignal, onSettled } from 'solid-js';
 
 import {
     ContextMenu,
@@ -16,7 +16,10 @@ import {
 import { SettingsProvider } from '@/lib/use-settings';
 import type { Cell } from '@/types/dashboard';
 
+import { createCellId } from './dashboard/ids';
 import { DashboardProvider, useDashboard } from './dashboard/use-dashboard';
+import AddCellDrawer from './drawer/AddCellDrawer';
+import type { CatalogItem } from './drawer/catalog';
 import { GLOBAL_MENU, type GlobalMenuCommand } from './global-menu';
 import NewTabShell from './layout/NewTabShell';
 import PageGrid from './PageGrid';
@@ -32,7 +35,7 @@ export default function App() {
 }
 
 function NewTabView() {
-    const { data, setActivePage, removeCell, reorderCell } = useDashboard();
+    const { data, setActivePage, addCell, removeCell, reorderCell } = useDashboard();
     const [direction, setDirection] = createSignal(1);
     const [editing, setEditing] = createSignal(false);
 
@@ -59,13 +62,45 @@ function NewTabView() {
         setDrawerCell(null);
     };
 
-    // 换页时关掉抽屉，避免停在上一个页面的 cell 上。
+    /**
+     * 换页时关掉抽屉，避免停在上一个页面的 cell 上。
+     *
+     * 必须自己判断"页号真的变了"：这个 effect 的 compute 依赖 `data()`，
+     * 而添加 / 删除 cell 同样会改 `data()`，回调也会跟着重跑。少了这个判断，
+     * 从抽屉里加一个图标就会把抽屉自己关掉。
+     */
+    let lastPageId = data().activePageId;
     createEffect(
         () => data().activePageId,
         () => {
+            const pageId = data().activePageId;
+            if (pageId === lastPageId) return;
+
+            lastPageId = pageId;
             closeDrawer();
         },
     );
+
+    /**
+     * 左键点抽屉外面关掉抽屉。
+     *
+     * 不能用 Drawer 的 `closeOnOutsidePress`：SDK 那套是靠在遮罩元素上判定的，
+     * 而我们已经把遮罩去掉了（它挡住整页、连右键都被吃掉），所以这里自己判。
+     * 只认主键：右键要看菜单，不能顺手把抽屉关掉。
+     */
+    onSettled(() => {
+        const onPointerDown = (event: PointerEvent) => {
+            if (drawerMode() === null || event.button !== 0) return;
+
+            const target = event.target;
+            if (target instanceof Element && target.closest('[data-cell-drawer]')) return;
+
+            closeDrawer();
+        };
+
+        document.addEventListener('pointerdown', onPointerDown, true);
+        return () => document.removeEventListener('pointerdown', onPointerDown, true);
+    });
 
     const pages = () => data().pages;
     const index = () => Math.max(0, pages().findIndex((page) => page.id === data().activePageId));
@@ -82,6 +117,20 @@ function NewTabView() {
     const removeCellAndDrawer = (cellId: string) => {
         if (drawerCell()?.id === cellId) closeDrawer();
         removeCell(page()!.id, cellId);
+    };
+
+    /** 从抽屉里点一个图标：作为 link cell 加到当前页。 */
+    const addLinkCell = (item: CatalogItem) => {
+        const target = page();
+        if (!target) return;
+
+        addCell(target.id, {
+            id: createCellId(),
+            kind: 'link',
+            title: item.title,
+            url: item.url,
+            grid: { x: 0, y: 0, w: 1, h: 1 },
+        });
     };
 
     const runCommand = (command: GlobalMenuCommand) => {
@@ -140,32 +189,31 @@ function NewTabView() {
                 side="right"
                 /*
                  * 非模态：页面照常可用——可以滚动、右键菜单（全局和 cell）都还在。
-                 * 点外面关闭要显式打开：非模态时 closeOnOutsidePress 默认是 false。
-                 * drawer 用的是 dialog 行为，outsidePress 监听的是 `click`，右键不会触发，
-                 * 所以"左键点外面关掉、右键不打扰"是天然成立的。
+                 * "左键点外面关闭"由上面的 document pointerdown 自己做（SDK 的
+                 * closeOnOutsidePress 依赖遮罩，这里没有遮罩）。
                  */
                 modal={false}
-                closeOnOutsidePress
                 open={drawerMode() !== null}
                 onOpenChange={(open) => {
                     if (!open) closeDrawer();
                 }}
             >
-                <DrawerContent class="h-dvh max-h-dvh">
+                <DrawerContent data-cell-drawer="true" class="h-dvh max-h-dvh">
                     <DrawerHeader>
                         <DrawerTitle>{drawerMode() === 'add' ? '添加图标' : '编辑图标'}</DrawerTitle>
                         <DrawerDescription>{drawerCell()?.title ?? ''}</DrawerDescription>
                     </DrawerHeader>
-                    {/*
-                     * 抽屉自己的垂直滚动：内容区 overflow-y-auto，滚到边界用 overscroll-contain
-                     * 断掉滚动链，再用 onWheel stopPropagation 阻止外壳的"滚到底翻页"。
-                     */}
-                    <div
-                        class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 text-sm text-muted-foreground"
-                        onWheel={(event) => event.stopPropagation()}
+                    {/* 抽屉本身不做滚动容器：要滚的是里面自己的元素。 */}
+                    <Show
+                        when={drawerMode() === 'add'}
+                        fallback={
+                            <div class="min-h-0 flex-1 p-4 text-sm text-muted-foreground">
+                                图标编辑功能待实现。
+                            </div>
+                        }
                     >
-                        图标编辑功能待实现。
-                    </div>
+                        <AddCellDrawer onAddLink={addLinkCell} />
+                    </Show>
                 </DrawerContent>
             </Drawer>
         </>
