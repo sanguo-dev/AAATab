@@ -1,4 +1,4 @@
-import type { NoteTile as NoteTileData } from '../dashboard/types';
+import type { NoteTile as NoteTileData } from '@/lib/dashboard/types';
 
 import TileIcon from './TileIcon';
 

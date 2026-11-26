@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSettings } from '@/utils/use-settings';
 
-import Toggle from '../Toggle';
+import Toggle from '@/components/options/Toggle';
 
 export default function NewTabPage() {
     const { settings, update } = useSettings();

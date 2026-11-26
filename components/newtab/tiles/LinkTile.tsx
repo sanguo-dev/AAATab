@@ -1,4 +1,4 @@
-import type { LinkTile as LinkTileData } from '../dashboard/types';
+import type { LinkTile as LinkTileData } from '@/lib/dashboard/types';
 
 import TileIcon from './TileIcon';
 

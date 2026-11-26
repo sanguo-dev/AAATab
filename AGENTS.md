@@ -14,4 +14,5 @@
 - 只使用 solid-ui-next 的源码组件（`components/ui/`）和其主题（`components/ui/styles/`）；不要引入 daisyUI、Kobalte、Corvu。
 - `cn` 统一从 `@/lib/utils` 导入（`clsx` + `tailwind-merge`）。
 - `@ui-sdk/solid` 与 `@ui-sdk/core` 必须保持同一版本 `0.1.0-beta.10`，升级时一起改。
-- `components/` 只放 solid-ui-next 的 vendored 组件；页面专用组件放在对应 `entrypoints/` 目录。
+- `components/` 下：`ui/` 只放 solid-ui-next 的 vendored 组件；页面专用组件放 `components/newtab/`、`components/options/`；跨页面通用的放 `components/layout/`。
+- `entrypoints/` 只保留入口文件（`main.tsx`、`App.tsx`、`index.html`）、路由及其页面（如 `options/pages/`）与非组件的页面逻辑。

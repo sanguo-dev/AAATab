@@ -1,11 +1,10 @@
 import { createSignal } from 'solid-js';
 
+import NewTabShell from '@/components/newtab/NewTabShell';
+import PageGrid from '@/components/newtab/PageGrid';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { DashboardProvider, useDashboard } from '@/lib/dashboard/use-dashboard';
 import { SettingsProvider } from '@/utils/use-settings';
-
-import NewTabShell from './NewTabShell';
-import PageGrid from './PageGrid';
-import { DashboardProvider, useDashboard } from './dashboard/use-dashboard';
 
 export default function App() {
     return (
