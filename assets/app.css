@@ -1,19 +1,15 @@
 @layer ui-sdk;
 
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "../components/ui/styles/solid-ui.css";
-@import "../components/ui/styles/theme.css" layer(base);
+@import "./solid-ui.css";
 
 @source "../entrypoints";
 @source "../components";
 
-@custom-variant dark (&:is(.dark *));
-
 /*
- * AAATab is dark-only. The semantic tokens below follow shadcn/ui's naming so
- * the vendored solid-ui-next components resolve their `bg-card`, `text-muted`
- * and similar classes. Values are the extension's blue-on-near-black palette.
+ * AAATab is dark-only. `./solid-ui.css` is owned by solidui-cli and brings the
+ * shared utilities plus the preset's light/dark tokens; the overrides below
+ * replace them with the extension's blue-on-near-black palette.
  */
 :root {
     --radius: 0.75rem;

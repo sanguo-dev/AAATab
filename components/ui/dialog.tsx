@@ -12,7 +12,7 @@ import {
 import { omit, Show, type Component } from "solid-js"
 
 import { cn } from "@/lib/utils"
-import { Button } from "./button"
+import { Button } from "@/components/ui/button"
 type DialogProps = ComponentProps<typeof SdkDialog>
 const Dialog: Component<DialogProps> = (props) => <SdkDialog {...props} />
 type DialogTriggerProps = Omit<
@@ -37,7 +37,7 @@ type DialogOverlayProps = Omit<
 const DialogOverlay = (props: DialogOverlayProps) => (
   <SdkDialogBackdrop
     {...props}
-    class={cn("cn-dialog-overlay fixed inset-0 isolate z-50", props.class)}
+    class={cn("bg-black/10 duration-100 data-ending-style:animate-out data-ending-style:fade-out-0 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 fixed inset-0 isolate z-50", props.class)}
   />
 )
 type DialogContentProps = (Omit<
@@ -56,7 +56,7 @@ const DialogContent = (props: DialogContentProps) => {
       <SdkDialogContent
         {...others}
         class={cn(
-          "cn-dialog-content fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
+          "grid max-w-[calc(100%-2rem)] gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95 sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 fixed top-1/2 left-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 outline-none",
           props.class
         )}
       >
@@ -67,7 +67,7 @@ const DialogContent = (props: DialogContentProps) => {
               <Button {...partProps} variant="ghost" size="icon-sm" />
             )}
 
-            class="cn-dialog-close"
+            class="absolute top-2 right-2"
           >
             <svg
               width="24"
@@ -95,7 +95,7 @@ const DialogHeader = (props: DialogHeaderProps) => (
   <div
     data-slot="dialog-header"
     {...props}
-    class={cn("cn-dialog-header flex flex-col", props.class)}
+    class={cn("gap-2 flex flex-col", props.class)}
   />
 )
 type DialogFooterProps = (Omit<ComponentProps<"div">, "class"> & {
@@ -110,7 +110,7 @@ const DialogFooter = (props: DialogFooterProps) => {
       data-slot="dialog-footer"
       {...others}
       class={cn(
-        "cn-dialog-footer flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "-mx-4 -mb-4 rounded-b-xl border-t bg-muted/50 p-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
         props.class
       )}
     >
@@ -129,7 +129,7 @@ type DialogTitleProps = Omit<ComponentProps<typeof SdkDialogTitle>, "class"> & {
   class?: string
 }
 const DialogTitle = (props: DialogTitleProps) => (
-  <SdkDialogTitle {...props} class={cn("cn-dialog-title", props.class)} />
+  <SdkDialogTitle {...props} class={cn("text-base leading-none font-medium", props.class)} />
 )
 type DialogDescriptionProps = Omit<
   ComponentProps<typeof SdkDialogDescription>,
@@ -140,7 +140,7 @@ type DialogDescriptionProps = Omit<
 const DialogDescription = (props: DialogDescriptionProps) => (
   <SdkDialogDescription
     {...props}
-    class={cn("cn-dialog-description", props.class)}
+    class={cn("text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground", props.class)}
   />
 )
 export {

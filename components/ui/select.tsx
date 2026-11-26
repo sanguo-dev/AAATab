@@ -22,7 +22,7 @@ const SelectGroup = (
     class?: string
     children?: JSX.Element
   }
-) => <SdkSelectGroup {...props} class={cn("cn-select-group", props.class)} />
+) => <SdkSelectGroup {...props} class={cn("scroll-my-1 p-1", props.class)} />
 const SelectLabel = (
   props: Omit<
     ComponentProps<typeof SdkSelectGroupLabel>,
@@ -32,13 +32,13 @@ const SelectLabel = (
     children?: JSX.Element
   }
 ) => (
-  <SdkSelectGroupLabel {...props} class={cn("cn-select-label", props.class)} />
+  <SdkSelectGroupLabel {...props} class={cn("px-1.5 py-1 text-xs text-muted-foreground", props.class)} />
 )
 const SelectValue = (
   props: Omit<ComponentProps<typeof SdkSelectValue>, "class"> & {
     class?: string
   }
-) => <SdkSelectValue {...props} class={cn("cn-select-value", props.class)} />
+) => <SdkSelectValue {...props} class={cn("flex flex-1 text-left", props.class)} />
 type SelectTriggerProps = Omit<
   ComponentProps<typeof SdkSelectTrigger>,
   "class"
@@ -53,7 +53,7 @@ const SelectTrigger = (props: SelectTriggerProps) => {
       {...rest}
       data-size={props.size ?? "default"}
       class={cn(
-        "cn-select-trigger flex w-fit items-center justify-between whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "gap-1.5 rounded-lg border border-input bg-transparent py-2 pr-2 pl-2.5 text-sm transition-colors select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 data-placeholder:text-muted-foreground data-[size=default]:h-8 data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] *:data-[slot=select-value]:flex *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:hover:bg-input/50 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 flex w-fit items-center justify-between whitespace-nowrap outline-none disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0",
         props.class
       )}
     >
@@ -68,7 +68,7 @@ const SelectTrigger = (props: SelectTriggerProps) => {
         stroke-linecap="round"
         stroke-linejoin="round"
         aria-hidden="true"
-        class="cn-select-trigger-icon pointer-events-none"
+        class="size-4 text-muted-foreground pointer-events-none"
       >
         <path d="m6 9 6 6 6-6" />
       </svg>
@@ -88,11 +88,11 @@ const SelectContent = (
       align="center"
       {...rest}
       class={cn(
-        "cn-select-content cn-menu-target cn-menu-translucent relative z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto",
+        "min-w-36 rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 relative z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto",
         props.class
       )}
     >
-      <SdkSelectList class="cn-select-list">{props.children}</SdkSelectList>
+      <SdkSelectList class="has-[>[data-slot=select-item]]:p-1">{props.children}</SdkSelectList>
     </SdkSelectContent>
   )
 }
@@ -107,14 +107,14 @@ const SelectItem = (
     <SdkSelectItem
       {...rest}
       class={cn(
-        "cn-select-item relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         props.class
       )}
     >
-      <SdkSelectItemText class="cn-select-item-text shrink-0 whitespace-nowrap">
+      <SdkSelectItemText class="flex flex-1 gap-2 shrink-0 whitespace-nowrap">
         {props.children}
       </SdkSelectItemText>
-      <SdkSelectItemIndicator class="cn-select-item-indicator">
+      <SdkSelectItemIndicator class="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
         <svg
           width="24"
           height="24"
@@ -125,7 +125,7 @@ const SelectItem = (
           stroke-linecap="round"
           stroke-linejoin="round"
           aria-hidden="true"
-          class="cn-select-item-indicator-icon pointer-events-none"
+          class="pointer-events-none"
         >
           <path d="M20 6 9 17l-5-5" />
         </svg>
@@ -144,7 +144,7 @@ const SelectSeparator = (
 ) => (
   <SdkSelectSeparator
     {...props}
-    class={cn("cn-select-separator pointer-events-none", props.class)}
+    class={cn("-mx-1 my-1 h-px bg-border pointer-events-none", props.class)}
   />
 )
 export {

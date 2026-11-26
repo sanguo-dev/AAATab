@@ -11,9 +11,9 @@
 
 ## UI 组件
 
-- 只使用 solid-ui-next 的源码组件（`components/ui/`）和其主题（`components/ui/styles/`）；不要引入 daisyUI、Kobalte、Corvu。
+- UI 组件只用 solid-ui 的源码组件（`components/ui/`，由 `solidui-cli` 安装的 copy-and-own 源码），主题只用 `assets/solid-ui.css`（CLI 生成，勿手改）；不要再往项目里加 `style-nova.css` / `.style-nova`，也不要在组件里写 `cn-*` 语义类名。不要引入 daisyUI、Kobalte、Corvu。
 - `cn` 统一从 `@/lib/utils` 导入（`clsx` + `tailwind-merge`）。
-- `@ui-sdk/solid` 与 `@ui-sdk/core` 必须保持同一版本 `0.1.0-beta.10`，升级时一起改。
-- `components/` 只放 `ui/`（solid-ui-next vendored）和跨页面通用的 `layout/`；页面布局外壳放 `entrypoints/<page>/layout/`，其余页面专用组件放对应 `entrypoints/<page>/`。
+- `@ui-sdk/solid` 与 `@ui-sdk/core` 必须保持同一版本 `0.1.0-beta.17`，升级时一起改。
+- `components/` 只放 `ui/`（solid-ui 源码）和跨页面通用的 `layout/`；页面布局外壳放 `entrypoints/<page>/layout/`，其余页面专用组件放对应 `entrypoints/<page>/`。
 - `entrypoints/` 放各页面的入口文件（`main.tsx`、`App.tsx`、`index.html`）、路由与页面、页面专用组件以及页面逻辑。
 - 不再使用 `utils/` 目录：共享代码放 `lib/`（如 `lib/settings.ts`、`lib/dashboard/`），共享类型放 `types/`。

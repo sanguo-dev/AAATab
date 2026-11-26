@@ -4,11 +4,11 @@ import { omit } from "solid-js"
 
 import { cn } from "@/lib/utils"
 
-const alertVariants = cva("group/alert cn-alert", {
+const alertVariants = cva("group/alert grid gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4", {
   variants: {
     variant: {
-      default: "cn-alert-variant-default",
-      destructive: "cn-alert-variant-destructive"
+      default: "bg-card text-card-foreground",
+      destructive: "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current"
     }
   },
   defaultVariants: {
@@ -36,7 +36,7 @@ const AlertTitle = (props: AlertTitleProps) => (
   <h5
     data-slot="alert-title"
     {...props}
-    class={cn("cn-alert-title", props.class)}
+    class={cn("font-medium group-has-[>svg]/alert:col-start-2", props.class)}
   />
 )
 
@@ -46,7 +46,7 @@ const AlertDescription = (props: AlertDescriptionProps) => (
   <div
     data-slot="alert-description"
     {...props}
-    class={cn("cn-alert-description", props.class)}
+    class={cn("text-sm text-balance text-muted-foreground md:text-pretty [&_p:not(:last-child)]:mb-4", props.class)}
   />
 )
 
@@ -56,7 +56,7 @@ const AlertAction = (props: AlertActionProps) => (
   <div
     data-slot="alert-action"
     {...props}
-    class={cn("cn-alert-action", props.class)}
+    class={cn("absolute top-2 right-2", props.class)}
   />
 )
 

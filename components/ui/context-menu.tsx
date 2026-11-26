@@ -30,7 +30,7 @@ type ContextMenuTriggerProps = Omit<
 const ContextMenuTrigger = (props: ContextMenuTriggerProps) => (
   <SdkMenuContextTrigger
     {...props}
-    class={cn("cn-context-menu-trigger select-none", props.class)}
+    class={cn("select-none", props.class)}
   />
 )
 type ContextMenuContentProps = Omit<
@@ -44,7 +44,7 @@ const ContextMenuContent = (props: ContextMenuContentProps) => (
     <SdkMenuContent
       {...props}
       class={cn(
-        "cn-context-menu-content cn-menu-target cn-menu-translucent z-50 max-h-(--available-height) origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none",
+        "min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 z-50 max-h-(--available-height) origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none",
         props.class
       )}
     />
@@ -71,7 +71,7 @@ const ContextMenuLabel = (props: ContextMenuLabelProps) => {
   const others = omit(props, "class", "inset")
   return (
     <SdkMenuGroupLabel
-      class={cn("cn-context-menu-label data-inset:pl-8", props.class)}
+      class={cn("px-1.5 py-1 text-xs font-medium text-muted-foreground data-inset:pl-7 data-inset:pl-8", props.class)}
       data-inset={props.inset}
       {...others}
     />
@@ -95,7 +95,7 @@ const ContextMenuItem = (rawProps: ContextMenuItemProps) => {
   return (
     <SdkMenuItem
       class={cn(
-        "group/context-menu-item cn-context-menu-item relative flex cursor-default items-center outline-hidden select-none data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "group/context-menu-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground data-inset:pl-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg:not([class*='size-'])]:size-4 focus:*:[svg]:text-accent-foreground data-[variant=destructive]:*:[svg]:text-destructive relative flex cursor-default items-center outline-hidden select-none data-inset:pl-8 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         local.class
       )}
       data-inset={local.inset}
@@ -119,7 +119,7 @@ const ContextMenuSubTrigger = (props: ContextMenuSubTriggerProps) => {
   return (
     <SdkMenuSubTrigger
       class={cn(
-        "cn-context-menu-sub-trigger flex cursor-default items-center outline-hidden select-none data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground data-inset:pl-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 flex cursor-default items-center outline-hidden select-none data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         props.class
       )}
       data-inset={props.inset}
@@ -154,7 +154,7 @@ const ContextMenuSubContent = (props: ContextMenuSubContentProps) => (
     <SdkMenuSubContent
       {...props}
       class={cn(
-        "cn-context-menu-content cn-context-menu-sub-content cn-context-menu-subcontent cn-menu-target cn-menu-translucent z-50 max-h-(--available-height) origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none",
+        "min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 min-w-32 rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg duration-100 data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 shadow-lg z-50 max-h-(--available-height) origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none",
         props.class
       )}
     />
@@ -175,12 +175,12 @@ const ContextMenuCheckboxItem = (props: ContextMenuCheckboxItemProps) => {
     <SdkMenuCheckboxItem
       value={props.value ?? value}
       class={cn(
-        "cn-context-menu-checkbox-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm focus:bg-accent focus:text-accent-foreground data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         props.class
       )}
       {...others}
     >
-      <span class="cn-context-menu-item-indicator pointer-events-none">
+      <span class="absolute right-2 pointer-events-none">
         <SdkMenuItemIndicator>
           <svg
             width="24"
@@ -221,12 +221,12 @@ const ContextMenuRadioItem = (props: ContextMenuRadioItemProps) => {
   return (
     <SdkMenuRadioItem
       class={cn(
-        "cn-context-menu-radio-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm focus:bg-accent focus:text-accent-foreground data-inset:pl-7 [&_svg:not([class*='size-'])]:size-4 relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         props.class
       )}
       {...others}
     >
-      <span class="cn-context-menu-item-indicator pointer-events-none">
+      <span class="absolute right-2 pointer-events-none">
         <SdkMenuItemIndicator>
           <svg
             width="24"
@@ -256,12 +256,12 @@ type ContextMenuSeparatorProps = Omit<
 const ContextMenuSeparator = (props: ContextMenuSeparatorProps) => (
   <SdkMenuSeparator
     {...props}
-    class={cn("cn-context-menu-separator", props.class)}
+    class={cn("-mx-1 my-1 h-px bg-border", props.class)}
   />
 )
 type ContextMenuShortcutProps = ComponentProps<"span">
 const ContextMenuShortcut = (props: ContextMenuShortcutProps) => (
-  <span {...props} class={cn("cn-context-menu-shortcut", props.class)} />
+  <span {...props} class={cn("ml-auto text-xs tracking-widest text-muted-foreground group-focus/context-menu-item:text-accent-foreground", props.class)} />
 )
 export {
   ContextMenu,

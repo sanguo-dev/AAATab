@@ -1,52 +1,71 @@
-# Vendored solid-ui-next components
+# solid-ui components (copy-and-own)
 
-These files are copied from [solid-ui-next](https://github.com/stefan-karger/solid-ui-next),
-the Solid 2 port of Solid UI, at commit
-`f2470e12c40886a4d9ae4973d32050d9455b1e8f` (2026-11-25). They are not an npm
-dependency: the registry is copy-and-own, so this directory is the local copy.
+These files come from [Solid UI v2](https://github.com/stefan-karger/solid-ui) through
+`solidui-cli`, which installs the registry source into this project instead of adding an
+npm dependency. Upstream `main` at the time of the last update was
+`07c22335db3be124caf16f5c152fa9818a871281` (2026-11-26); the published registry at
+https://www.solid-ui.com/r/styles/nova is what actually got installed.
+
+## Do not reintroduce `cn-*` classes
+
+The registry serves each component with its semantic classes already resolved: upstream
+writes `cn-button-variant-default` and the registry export replaces that token with the
+literal Tailwind utilities taken from `style-nova.css`. The files in this directory are that
+exported form, which is why this project does not need — and no longer contains — a copy of
+the `.style-nova` theme stylesheet.
+
+Consequences:
+
+- Editing a component here is fine, but keep writing plain Tailwind utilities.
+- Don't copy raw files from `apps/docs/src/registry/ui` in the upstream repo: those still
+  contain `cn-*` tokens and render unstyled without `style-nova.css`.
+- `.style-nova` is no longer put on `<html>`; only `.dark` is, and it drives the dark tokens
+  that `assets/solid-ui.css` ships.
 
 ## Runtime dependencies
 
-- `@ui-sdk/solid` + `@ui-sdk/core` `0.1.0-beta.10` (behavior, top-layer popups)
-- `class-variance-authority`, `clsx`, `tailwind-merge`
-- `tw-animate-css` (used by the theme's enter/exit animations)
-
-The UI SDK version is deliberately pinned: the registry was validated against
-`0.1.0-beta.10`, and `@ui-sdk/solid`'s peer range (`^0.1.0-beta.10`) would
-otherwise float to a newer beta.
-
-## Local edits
-
-Only import paths and user-facing text differ from upstream:
-
-- `~/lib/utils` → `@/lib/utils` (shadcn's conventional location)
-- `~/registry/ui/button` → `./button`
-- the dialog close button's label is `关闭` instead of `Close`
-
-Everything else, including the Lucide SVG paths in `dialog.tsx` and
-`select.tsx`, is unchanged.
+- `@ui-sdk/solid` + `@ui-sdk/core` `0.1.0-beta.17` — behavior, top-layer popups. Both stay
+  on one exact build: betas are not interchangeable, and the components are written against
+  this one.
+- `class-variance-authority`, `clsx`, `tailwind-merge` (via `@/lib/utils`).
+- `tw-animate-css` and `@fontsource-variable/geist`, imported by `assets/solid-ui.css`.
+- Solid 2: `solid-js`, `@solidjs/web` (`^2.0.3` here, upstream pins `2.0.1`).
 
 ## Styles
 
-- `styles/solid-ui.css` — upstream `registry/lib/style-utilities.css`: state
-  variants, accordion keyframes, scroll fades, shimmer.
-- `styles/theme.css` — upstream `registry/styles/style-nova.css`, the Nova
-  style. It is imported with `layer(base)` and scoped by the `.style-nova`
-  class that `entrypoints/*/index.html` puts on `<html>`.
+- `assets/solid-ui.css` — owned by the CLI. It is generated from preset `b2fA` (style
+  `nova`) and holds the shared state variants, accordion keyframes, scroll-fade and shimmer
+  utilities, the preset's light/dark tokens, and the Tailwind `--color-*` mapping. Never edit
+  it by hand: `npx solidui-cli init --force` rewrites it.
+- `assets/app.css` — the project stylesheet. It keeps `@layer ui-sdk;` first and imports
+  `./solid-ui.css` right after Tailwind, then overrides the tokens with AAATab's
+  blue-on-near-black dark palette and adds project-only pieces (`no-scrollbar`,
+  `.tab-surface`, base resets).
 
-The theme expects the shadcn semantic tokens (`--background`, `--card`,
-`--primary`, `--sidebar*`, …). They are defined in `assets/app.css`; it also
-provides the `no-scrollbar` utility that upstream ships only in its docs app.
+## Local edits
+
+Only user-facing text differs from the registry source:
+
+- the dialog close button's label is `关闭` instead of `Close`.
+
+Import paths need no edit: `components.json` declares the `@/` aliases, so the CLI rewrites
+`~/lib/utils` → `@/lib/utils` and `~/registry/ui/button` → `@/components/ui/button` on
+install.
 
 ## Updating
 
-1. Pick a new upstream commit and re-copy the needed files.
-2. Re-apply the three local edits above.
-3. Keep `@ui-sdk/solid` and `@ui-sdk/core` on the version the registry pins.
-4. Run `bun run compile` and `bun run build`, then check the dialog and select
-   interactions in a real browser.
+```bash
+npx solidui-cli@latest add --overwrite button card input label switch alert context-menu drawer dialog select textarea
+```
+
+1. Re-apply the `关闭` label in `components/ui/dialog.tsx`.
+2. Run `bun run compile` and `bun run build`.
+3. Check the dialog, drawer, context menu and switch in a real browser.
+
+After a UI SDK beta bump, change `@ui-sdk/core` and `@ui-sdk/solid` together to the exact
+build listed in `apps/docs/src/registry/ui/_registry.ts` dependencies upstream.
 
 ## License
 
-MIT, with portions adapted from shadcn/ui and Lucide icons under ISC. See
-`LICENSE` in this directory.
+MIT, with portions adapted from shadcn/ui and Lucide icons under ISC. See `LICENSE` in this
+directory.

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://solid-ui.com/schema.json",
+  "style": "nova",
+  "preset": "b2fA",
+  "tailwind": {
+    "css": "assets/app.css"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "utils": "@/lib/utils",
+    "hooks": "@/hooks"
+  }
+}

@@ -23,7 +23,7 @@ export function DrawerOverlay(
   return (
     <SdkDrawerBackdrop
       {...props}
-      class={cn("cn-drawer-overlay", props.class)}
+      class={cn("bg-black/10 supports-backdrop-filter:backdrop-blur-xs", props.class)}
     />
   )
 }
@@ -39,7 +39,7 @@ export function DrawerContent(
       <SdkDrawerContent
         {...props}
         class={cn(
-          "cn-drawer-content flex max-h-[90svh] flex-col data-[side=left]:max-w-sm data-[side=right]:max-w-sm",
+          "flex h-auto flex-col bg-popover text-sm text-popover-foreground data-[side=bottom]:rounded-t-xl data-[side=bottom]:border-t data-[side=left]:rounded-r-xl data-[side=left]:border-r data-[side=right]:rounded-l-xl data-[side=right]:border-l data-[side=top]:rounded-b-xl data-[side=top]:border-b flex max-h-[90svh] flex-col data-[side=left]:max-w-sm data-[side=right]:max-w-sm",
           props.class
         )}
       />
@@ -68,7 +68,7 @@ export function DrawerTitle(
   }
 ) {
   return (
-    <SdkDrawerTitle {...props} class={cn("cn-drawer-title", props.class)} />
+    <SdkDrawerTitle {...props} class={cn("text-base font-medium text-foreground", props.class)} />
   )
 }
 export function DrawerDescription(
@@ -79,7 +79,7 @@ export function DrawerDescription(
   return (
     <SdkDrawerDescription
       {...props}
-      class={cn("cn-drawer-description", props.class)}
+      class={cn("text-sm text-muted-foreground", props.class)}
     />
   )
 }
@@ -88,7 +88,7 @@ export function DrawerHeader(props: ComponentProps<"div">) {
     <div
       {...props}
       data-slot="drawer-header"
-      class={cn("cn-drawer-header flex flex-col", props.class)}
+      class={cn("gap-0.5 p-4 md:gap-0.5 md:text-left flex flex-col", props.class)}
     />
   )
 }
@@ -97,7 +97,7 @@ export function DrawerFooter(props: ComponentProps<"div">) {
     <div
       {...props}
       data-slot="drawer-footer"
-      class={cn("cn-drawer-footer mt-auto flex flex-col", props.class)}
+      class={cn("gap-2 p-4 mt-auto flex flex-col", props.class)}
     />
   )
 }
