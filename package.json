@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@lucide/solid": "^1.79.0",
+        "@solid-primitives/drag-drop": "0.1.0",
         "@solidjs/router": "2.0.1",
         "@solidjs/web": "^2.0.3",
         "@ui-sdk/core": "0.1.0-beta.10",

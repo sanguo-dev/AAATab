@@ -1,9 +1,9 @@
 import { UserRound } from '@lucide/solid';
 
-import Toggle from '@/components/options/Toggle';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/lib/use-settings';
 
 export default function GeneralPage() {
@@ -35,12 +35,19 @@ export default function GeneralPage() {
                         留空时，新标签页会称呼你为“朋友”。
                     </p>
                 </div>
-                <Toggle
-                    label="显示问候语"
-                    description="根据当前时间显示“早上好”“下午好”等问候。"
-                    checked={settings().showGreeting}
-                    onChange={(showGreeting) => update({ showGreeting })}
-                />
+                <div class="flex items-center justify-between gap-6 py-1">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-sm font-medium text-foreground">显示问候语</span>
+                        <span class="text-xs leading-relaxed text-muted-foreground">
+                            根据当前时间显示“早上好”“下午好”等问候。
+                        </span>
+                    </div>
+                    <Switch
+                        checked={settings().showGreeting}
+                        onCheckedChange={(showGreeting) => update({ showGreeting })}
+                        aria-label="显示问候语"
+                    />
+                </div>
             </CardContent>
         </Card>
     );

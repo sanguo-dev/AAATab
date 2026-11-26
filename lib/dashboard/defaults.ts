@@ -1,4 +1,21 @@
-import type { DashboardData } from '@/types/dashboard';
+import type { DashboardData, Tile } from '@/types/dashboard';
+
+/**
+ * 开发期测试数据：首页先放 20 个 cell，方便验证拖拽换位和换行；
+ * 正式的 cell 添加入口做好后删掉。
+ */
+const DEMO_TILES: Tile[] = Array.from({ length: 20 }, (_, index): Tile => {
+    const number = String(index + 1).padStart(2, '0');
+
+    return {
+        id: `tile-demo-${number}`,
+        type: 'note',
+        title: `Cell ${number}`,
+        text: `测试 cell ${number}`,
+        icon: { kind: 'lucide', name: 'layout-grid' },
+        grid: { x: 0, y: 0, w: 1, h: 1 },
+    };
+});
 
 export const DEFAULT_DASHBOARD: DashboardData = {
     schemaVersion: 1,
@@ -15,6 +32,7 @@ export const DEFAULT_DASHBOARD: DashboardData = {
                     icon: { kind: 'lucide', name: 'clock' },
                     grid: { x: 0, y: 0, w: 1, h: 1 },
                 },
+                ...DEMO_TILES,
             ],
         },
         {

@@ -32,6 +32,7 @@ interface DashboardStore {
     resizeTile: (pageId: string, tileId: string, rect: GridRect) => void;
     addTile: (pageId: string, tile: Tile) => void;
     removeTile: (pageId: string, tileId: string) => void;
+    reorderTile: (pageId: string, tileId: string, toIndex: number) => void;
     addPage: (page: DashboardPage) => void;
     removePage: (pageId: string) => void;
     movePage: (pageId: string, toIndex: number) => void;
@@ -111,6 +112,20 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         replaceTiles(pageId, (tiles) => tiles.filter((tile) => tile.id !== tileId));
     };
 
+    const reorderTile = (pageId: string, tileId: string, toIndex: number) => {
+        replacePage(pageId, (page) => {
+            const from = page.tiles.findIndex((tile) => tile.id === tileId);
+            const to = Math.max(0, Math.min(toIndex, page.tiles.length - 1));
+            if (from < 0 || from === to) return page;
+
+            const tiles = [...page.tiles];
+            const [tile] = tiles.splice(from, 1);
+            tiles.splice(to, 0, tile!);
+
+            return { ...page, tiles };
+        });
+    };
+
     const addPage = (page: DashboardPage) => {
         if (current.pages.some((candidate) => candidate.id === page.id)) return;
         commit({ ...current, pages: [...current.pages, page] });
@@ -167,6 +182,7 @@ export function DashboardProvider(props: { children: JSX.Element }) {
         resizeTile,
         addTile,
         removeTile,
+        reorderTile,
         addPage,
         removePage,
         movePage,

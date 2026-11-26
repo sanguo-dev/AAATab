@@ -1,6 +1,6 @@
-import OptionsShell, { type SettingsTab } from '@/components/options/OptionsShell';
 import { SettingsProvider } from '@/lib/use-settings';
 
+import OptionsShell, { type SettingsTab } from './layout/OptionsShell';
 import { Router } from './router';
 
 const TABS: SettingsTab[] = [

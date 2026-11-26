@@ -1,10 +1,11 @@
 import { createSignal } from 'solid-js';
 
-import NewTabShell from '@/components/newtab/NewTabShell';
-import PageGrid from '@/components/newtab/PageGrid';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { DashboardProvider, useDashboard } from '@/lib/dashboard/use-dashboard';
 import { SettingsProvider } from '@/lib/use-settings';
+
+import NewTabShell from './layout/NewTabShell';
+import PageGrid from './PageGrid';
 
 export default function App() {
     return (
@@ -17,7 +18,7 @@ export default function App() {
 }
 
 function NewTabView() {
-    const { data, setActivePage, removeTile } = useDashboard();
+    const { data, setActivePage, removeTile, reorderTile } = useDashboard();
     const [direction, setDirection] = createSignal(1);
     const [editing, setEditing] = createSignal(false);
 
@@ -45,6 +46,7 @@ function NewTabView() {
                     <PageGrid
                         page={page()!}
                         editing={editing()}
+                        onReorderTile={(tileId, index) => reorderTile(page()!.id, tileId, index)}
                         onRemoveTile={(tileId) => removeTile(page()!.id, tileId)}
                         onExitEditing={() => setEditing(false)}
                     />

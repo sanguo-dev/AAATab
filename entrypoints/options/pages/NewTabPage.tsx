@@ -1,7 +1,6 @@
 import { AppWindow, CircleCheck, Clock3, ExternalLink } from '@lucide/solid';
 import { browser } from 'wxt/browser';
 
-import Toggle from '@/components/options/Toggle';
 import {
     Alert,
     AlertDescription,
@@ -9,6 +8,7 @@ import {
 } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/lib/use-settings';
 
 export default function NewTabPage() {
@@ -28,24 +28,45 @@ export default function NewTabPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent class="flex flex-col gap-3">
-                    <Toggle
-                        label="显示时钟"
-                        description="在新标签页中央显示当前时间。"
-                        checked={settings().showClock}
-                        onChange={(showClock) => update({ showClock })}
-                    />
-                    <Toggle
-                        label="显示日期"
-                        description="在时钟下方显示日期和星期。"
-                        checked={settings().showDate}
-                        onChange={(showDate) => update({ showDate })}
-                    />
-                    <Toggle
-                        label="显示页码"
-                        description="滚动或切换页面时短暂显示底部的页码指示器。"
-                        checked={settings().showPageDots}
-                        onChange={(showPageDots) => update({ showPageDots })}
-                    />
+                    <div class="flex items-center justify-between gap-6 py-1">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-foreground">显示时钟</span>
+                            <span class="text-xs leading-relaxed text-muted-foreground">
+                                在新标签页中央显示当前时间。
+                            </span>
+                        </div>
+                        <Switch
+                            checked={settings().showClock}
+                            onCheckedChange={(showClock) => update({ showClock })}
+                            aria-label="显示时钟"
+                        />
+                    </div>
+                    <div class="flex items-center justify-between gap-6 py-1">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-foreground">显示日期</span>
+                            <span class="text-xs leading-relaxed text-muted-foreground">
+                                在时钟下方显示日期和星期。
+                            </span>
+                        </div>
+                        <Switch
+                            checked={settings().showDate}
+                            onCheckedChange={(showDate) => update({ showDate })}
+                            aria-label="显示日期"
+                        />
+                    </div>
+                    <div class="flex items-center justify-between gap-6 py-1">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-sm font-medium text-foreground">显示页码</span>
+                            <span class="text-xs leading-relaxed text-muted-foreground">
+                                滚动或切换页面时短暂显示底部的页码指示器。
+                            </span>
+                        </div>
+                        <Switch
+                            checked={settings().showPageDots}
+                            onCheckedChange={(showPageDots) => update({ showPageDots })}
+                            aria-label="显示页码"
+                        />
+                    </div>
                 </CardContent>
             </Card>
 
