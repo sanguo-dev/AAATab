@@ -156,7 +156,16 @@ function NewTabView() {
                         <DrawerTitle>{drawerMode() === 'add' ? '添加图标' : '编辑图标'}</DrawerTitle>
                         <DrawerDescription>{drawerCell()?.title ?? ''}</DrawerDescription>
                     </DrawerHeader>
-                    <div class="flex-1 p-4 text-sm text-muted-foreground">图标编辑功能待实现。</div>
+                    {/*
+                     * 抽屉自己的垂直滚动：内容区 overflow-y-auto，滚到边界用 overscroll-contain
+                     * 断掉滚动链，再用 onWheel stopPropagation 阻止外壳的"滚到底翻页"。
+                     */}
+                    <div
+                        class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 text-sm text-muted-foreground"
+                        onWheel={(event) => event.stopPropagation()}
+                    >
+                        图标编辑功能待实现。
+                    </div>
                 </DrawerContent>
             </Drawer>
         </>
