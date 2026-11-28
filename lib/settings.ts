@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showDate: true,
   showGreeting: true,
   showPageDots: true,
+  background: { kind: 'default' },
 };
 
 export const settingsItem = storage.defineItem<Settings>('local:settings', {

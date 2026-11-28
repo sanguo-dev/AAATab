@@ -5,6 +5,7 @@ import { Router } from './router';
 
 const TABS: SettingsTab[] = [
     { path: '/', label: '常规' },
+    { path: '/background', label: '背景' },
     { path: '/newtab', label: '新标签页' },
     { path: '/data', label: '数据' },
 ];

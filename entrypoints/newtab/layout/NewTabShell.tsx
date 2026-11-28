@@ -6,7 +6,9 @@ import { browser } from 'wxt/browser';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { resolveBackground } from '@/lib/background';
 import { useSettings } from '@/lib/use-settings';
+import type { ResolvedBackground } from '@/types/background';
 
 export interface ShellPage {
     id: string;
@@ -34,6 +36,43 @@ export default function NewTabShell(props: NewTabShellProps) {
     const [dotsVisible, setDotsVisible] = createSignal(false);
     let lastIndex = props.index;
     let entered = false;
+
+    /**
+     * 背景解析是异步的（必应要联网、上传图要读 IndexedDB），用一个代号丢掉过期结果，
+     * 换背景时顺便释放上一个是 `blob:` 的地址。
+     */
+    const [background, setBackground] = createSignal<ResolvedBackground>();
+    let backgroundGeneration = 0;
+    let disposeBackground: (() => void) | undefined;
+
+    const refreshBackground = () => {
+        const id = ++backgroundGeneration;
+
+        void resolveBackground(settings().background)
+            .then((next) => {
+                if (id !== backgroundGeneration) {
+                    next.dispose?.();
+                    return;
+                }
+                disposeBackground?.();
+                disposeBackground = next.dispose;
+                setBackground(next);
+            })
+            .catch(() => {
+                if (id === backgroundGeneration) setBackground(undefined);
+            });
+    };
+
+    createEffect(
+        () => settings().background,
+        () => refreshBackground(),
+    );
+
+    /** 有图片或纯色时就不再画默认的渐变底；两者都没有才是"默认背景"。 */
+    const hasImage = () => !!background()?.url;
+    const solidColor = () => background()?.color;
+
+    onSettled(() => () => disposeBackground?.());
 
     const flashDots = () => {
         setDotsVisible(true);
@@ -116,7 +155,27 @@ export default function NewTabShell(props: NewTabShellProps) {
                 if (props.editing) props.onExitEditing();
             }}
         >
-            <div class="tab-surface pointer-events-none absolute inset-0" aria-hidden="true" />
+            <Show when={hasImage()}>
+                <div
+                    class="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={`background-image: url("${background()!.url}")`}
+                    aria-hidden="true"
+                />
+                {/* 图片上压一层暗色，保证 cell 文字和搜索框的可读性。 */}
+                <div class="pointer-events-none absolute inset-0 bg-background/55" aria-hidden="true" />
+            </Show>
+
+            <Show when={solidColor()}>
+                <div
+                    class="pointer-events-none absolute inset-0"
+                    style={`background: ${solidColor()}`}
+                    aria-hidden="true"
+                />
+            </Show>
+
+            <Show when={!hasImage() && !solidColor()}>
+                <div class="tab-surface pointer-events-none absolute inset-0" aria-hidden="true" />
+            </Show>
 
             <div class="fixed inset-x-0 top-30 z-40 flex justify-center px-25">
                 <Input
