@@ -236,6 +236,7 @@ export default function AddCellDrawer(props: AddCellDrawerProps) {
                                                         icon={{ kind: 'favicon' }}
                                                         url={item.url}
                                                         size={22}
+                                                        preview
                                                     />
                                                 </span>
                                                 <span class="w-full truncate text-center text-[11px] text-foreground">

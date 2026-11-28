@@ -14,7 +14,7 @@ export interface GridRect {
 
 /**
  * cell 图标只有三种来源：
- * - `favicon`：由 cell 的地址取站点图标（扩展 manifest 的 favicon 能力；Firefox 走 /favicon.ico）；
+ * - `favicon`：由 cell 的地址解析站点图标（页面声明的 icon 优先，退到 /favicon.ico）；
  * - `solid`：纯色块；
  * - `upload`：用户上传的图片（先占位，选择器和存储都还没做）。
  */

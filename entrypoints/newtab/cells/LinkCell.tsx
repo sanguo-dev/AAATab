@@ -15,7 +15,7 @@ export default function LinkCell(props: { cell: LinkCellData; iconOnly?: boolean
             title={props.cell.title}
         >
             <span class="grid size-[60px] flex-none place-items-center text-primary">
-                <CellIcon icon={props.cell.icon} size={60} />
+                <CellIcon icon={props.cell.icon} url={props.cell.url} size={60} />
             </span>
             {/* 拖拽期间整个网格只留图标，避免文字跟着漂浮。 */}
             <Show when={!props.iconOnly}>

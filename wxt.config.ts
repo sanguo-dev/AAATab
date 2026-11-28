@@ -7,6 +7,9 @@ export default defineConfig({
     manifest: {
         // Used by the new tab page and options page to persist settings.
         permissions: ["storage"],
+        // 解析站点图标要抓首页 HTML，扩展页 fetch 跨域需要全站 host 权限。
+        // MV2（Firefox）没有这个字段，WXT 会把它并进 permissions。
+        host_permissions: ["*://*/*"],
     },
     vite: () => ({
         // @solidjs/vite-plugin is the Solid 2 replacement for vite-plugin-solid.

@@ -164,6 +164,8 @@ function SortableCell(props: SortableCellProps) {
     };
 
     const handlePointerUp = (event: PointerEvent) => {
+        // 只处理左键：右键归菜单，中键交给 <a> 自己的新标签行为，否则会开两个。
+        if (event.button !== 0) return;
         if (!sortable.isDragging()) return;
 
         const transform = sortable.transform();
@@ -183,11 +185,9 @@ function SortableCell(props: SortableCellProps) {
         if (!isLinkCell(cell)) return;
 
         event.preventDefault();
-        if (event.ctrlKey || event.metaKey) {
-            void browser.tabs.create({ url: cell.url });
-        } else {
-            window.location.assign(cell.url);
-        }
+
+        // 主页图标默认新标签打开；要留在当前页走右键菜单的「当前页打开」。
+        void browser.tabs.create({ url: cell.url });
     };
 
     const handleClick = (event: MouseEvent) => {

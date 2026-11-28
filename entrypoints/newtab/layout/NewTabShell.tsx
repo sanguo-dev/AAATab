@@ -118,7 +118,7 @@ export default function NewTabShell(props: NewTabShellProps) {
         >
             <div class="tab-surface pointer-events-none absolute inset-0" aria-hidden="true" />
 
-            <div class="fixed inset-x-0 top-4 z-40 flex justify-center px-[100px]">
+            <div class="fixed inset-x-0 top-30 z-40 flex justify-center px-25">
                 <Input
                     class="h-10 w-full max-w-xl bg-card/60"
                     placeholder="搜索"
@@ -143,7 +143,7 @@ export default function NewTabShell(props: NewTabShellProps) {
                 ref={(element) => {
                     scrollRef = element;
                 }}
-                class="relative z-10 min-h-0 flex-1 overflow-y-auto overscroll-contain pb-24 pt-24 no-scrollbar"
+                class="relative z-10 min-h-0 flex-1 overflow-y-auto overscroll-contain pb-24 pt-60 no-scrollbar"
             >
                 <div
                     ref={(element) => {
