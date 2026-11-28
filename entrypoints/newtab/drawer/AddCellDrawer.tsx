@@ -1,4 +1,4 @@
-import { Plus, Sparkles } from '@lucide/solid';
+import { Globe, Plus, Sparkles } from '@lucide/solid';
 import { For, Show, createSignal, onSettled } from 'solid-js';
 
 import { Button } from '@/components/ui/button';
@@ -244,25 +244,45 @@ export default function AddCellDrawer(props: AddCellDrawerProps) {
                                 <div class="grid grid-cols-2 gap-3 pt-4">
                                     <For each={visible(group.items)}>
                                         {(item) => (
-                                            <button
-                                                type="button"
-                                                class="flex w-full flex-col items-center justify-center gap-1 rounded-3xl bg-foreground/5 p-2 text-center transition-colors hover:bg-foreground/10 focus-visible:bg-foreground/10 focus-visible:outline-none"
+                                            <div
+                                                class="group relative rounded-3xl bg-foreground/5 transition-colors hover:bg-foreground/10 focus-within:bg-foreground/10"
                                                 style={`height: ${GRID_CELL_SIZE}px`}
-                                                title={item.url}
-                                                onClick={() => props.onAddLink(item)}
                                             >
-                                                <span class="grid size-[60px] flex-none place-items-center text-primary">
-                                                    <CellIcon
-                                                        icon={{ kind: 'favicon' }}
-                                                        url={item.url}
-                                                        size={60}
-                                                        preview
-                                                    />
-                                                </span>
-                                                <span class="block h-[20px] w-full mt-1 truncate text-xs font-medium leading-5 text-foreground">
-                                                    {item.title}
-                                                </span>
-                                            </button>
+                                                <button
+                                                    type="button"
+                                                    class="flex h-full w-full flex-col items-center justify-center gap-1 rounded-3xl p-2 text-center focus-visible:outline-none"
+                                                    title={item.url}
+                                                    onClick={() => props.onAddLink(item)}
+                                                >
+                                                    <span class="relative grid size-[60px] flex-none place-items-center text-primary">
+                                                        <CellIcon
+                                                            icon={{ kind: 'favicon' }}
+                                                            url={item.url}
+                                                            size={60}
+                                                            preview
+                                                        />
+                                                        {/* 悬停时盖在图标上的「+」，提示点这一格是添加。方角是为了和图标外框完全重合。 */}
+                                                        <span class="pointer-events-none absolute inset-0 grid place-items-center bg-background/65 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                                                            <Plus size={26} class="text-foreground" />
+                                                        </span>
+                                                    </span>
+                                                    <span class="block h-[20px] w-full mt-1 truncate text-xs font-medium leading-5 text-foreground">
+                                                        {item.title}
+                                                    </span>
+                                                </button>
+
+                                                {/* 右上角：默认藏起来，鼠标进到格子里才出现；悬停它本身才变蓝。 */}
+                                                <a
+                                                    class="pointer-events-none absolute right-1.5 top-1.5 z-10 grid size-6 place-items-center rounded-full text-muted-foreground opacity-0 transition group-hover:pointer-events-auto group-hover:opacity-100 hover:text-primary focus-visible:pointer-events-auto focus-visible:text-primary focus-visible:opacity-100 focus-visible:outline-none"
+                                                    href={item.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    title={`新标签打开 ${item.url}`}
+                                                    aria-label={`新标签打开 ${item.url}`}
+                                                >
+                                                    <Globe size={13} />
+                                                </a>
+                                            </div>
                                         )}
                                     </For>
                                 </div>
