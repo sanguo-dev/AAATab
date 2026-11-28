@@ -1,27 +1,16 @@
 import type { JSX } from '@solidjs/web';
 import { createContext, createSignal, onSettled, useContext } from 'solid-js';
-import { storage } from 'wxt/utils/storage';
 
+import { createDefaultDashboard } from '@/lib/dashboard/defaults';
+import { moveCell as moveCellOnGrid, resizeCell as resizeCellOnGrid } from '@/lib/dashboard/grid';
+import { normalizeDashboard } from '@/lib/dashboard/normalize';
+import { dashboardItem } from '@/lib/dashboard/storage';
 import type { Cell, DashboardData, DashboardPage, GridRect, IconSource } from '@/types/dashboard';
 
-import { createDefaultDashboard } from './defaults';
-import { moveCell as moveCellOnGrid, resizeCell as resizeCellOnGrid } from './grid';
-import { normalizeDashboard } from './normalize';
-
-/**
- * 持久化条目；结构变化在 `normalize.ts` 里做迁移。
- *
- * - 正式环境：`fallback` 给一页空白，`init` 不传 —— 首次打开不往存储里写任何东西。
- * - 开发环境：`init` 在存储为空时写入 `dev-seed.ts` 的种子数据。`import.meta.env.DEV`
- *   在正式构建里是字面量 `false`，这个动态 import 和整个 `dev-seed` 模块会被摇掉。
- */
-const dashboardItem = storage.defineItem<DashboardData>('local:dashboard', {
-    init: import.meta.env.DEV
-        ? async () => (await import('./dev-seed')).createDevSeedDashboard()
-        : undefined,
-    fallback: createDefaultDashboard(),
-    version: 1,
-});
+/** 写盘失败后的重试间隔；再失败就只留控制台报错，不阻塞下一次改动。 */
+const RETRY_DELAYS = [150, 600];
+/** 记住最近写入过的快照，用来把自己的存储回显和别的页面的改动区分开。 */
+const RECENT_WRITES = 10;
 
 /** 通用字段的补丁；kind 专属字段（url/widget/template）在各自的编辑器里处理。 */
 export interface CellPatch {
@@ -58,6 +47,57 @@ export function DashboardProvider(props: { children: JSX.Element }) {
     let current = createDefaultDashboard();
     const [data, setData] = createSignal<DashboardData>(current);
 
+    /**
+     * 写盘是异步的，改动却是连续的（加一个、拖一下、再改个图标）。
+     * 这里保证同一时间只有一个写入在飞，飞行途中攒下的改动合并成"只写最新的一份"，
+     * 避免旧快照晚到、把新状态覆盖回去。
+     */
+    let pending: DashboardData | null = null;
+    let flushing: Promise<void> | null = null;
+    const recentWrites: string[] = [];
+
+    const rememberWrite = (snapshot: string) => {
+        recentWrites.push(snapshot);
+        if (recentWrites.length > RECENT_WRITES) recentWrites.shift();
+    };
+
+    const writeOnce = async (value: DashboardData) => {
+        let attempt = 0;
+
+        for (;;) {
+            try {
+                await dashboardItem.setValue(value);
+                return;
+            } catch (error) {
+                const delay = RETRY_DELAYS[attempt];
+                if (delay === undefined) {
+                    console.error('[dashboard] 保存失败，这次改动可能没有写进存储', error);
+                    return;
+                }
+
+                attempt += 1;
+                await new Promise<void>((resolve) => window.setTimeout(resolve, delay));
+
+                // 重试等待期间又改了：旧值不必再写，循环会拿最新的 pending。
+                if (pending) return;
+            }
+        }
+    };
+
+    const flush = () => {
+        if (flushing) return;
+
+        flushing = (async () => {
+            while (pending) {
+                const value = pending;
+                pending = null;
+                await writeOnce(value);
+            }
+        })().finally(() => {
+            flushing = null;
+        });
+    };
+
     const apply = (value: unknown) => {
         current = normalizeDashboard(value);
         setData(current);
@@ -66,7 +106,10 @@ export function DashboardProvider(props: { children: JSX.Element }) {
     const commit = (next: DashboardData) => {
         current = next;
         setData(next);
-        void dashboardItem.setValue(next);
+
+        rememberWrite(JSON.stringify(next));
+        pending = next;
+        flush();
     };
 
     const replacePage = (pageId: string, updater: (page: DashboardPage) => DashboardPage) => {
@@ -174,14 +217,26 @@ export function DashboardProvider(props: { children: JSX.Element }) {
 
         const unwatch = dashboardItem.watch((value) => {
             receivedUpdate = true;
+
+            const json = JSON.stringify(value);
+
             // 本组件的写入也会从 storage 回显一次。内容没变就别再归一化：
             // normalizeDashboard 会重建每个 cell 对象，<For> 按引用比对，
             // 于是整块网格的 DOM 被销毁重建（拖拽松手后最明显）。
-            if (JSON.stringify(value) === JSON.stringify(current)) return;
+            if (json === JSON.stringify(current)) return;
+
+            // 连续改动时，先发出去的写入可能后回显；旧快照不能盖掉内存里更新的状态。
+            if (recentWrites.includes(json)) return;
+
+            // 本页还有没写完的改动：那一笔马上会落到存储里，先别用存储里的旧状态盖掉内存。
+            // 两个页面同时改属于 last-write-wins，等这一笔写完再接受外部的状态。
+            if (pending || flushing) return;
+
             apply(value);
         });
         void dashboardItem.getValue().then((value) => {
-            if (active && !receivedUpdate) apply(value);
+            // 读回来的值比首屏期间的本地改动旧，就别用它盖掉内存。
+            if (active && !receivedUpdate && !pending && !flushing) apply(value);
         });
 
         return () => {

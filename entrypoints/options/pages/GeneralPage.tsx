@@ -25,6 +25,7 @@ export default function GeneralPage() {
                     <Input
                         id="display-name"
                         type="text"
+                        class="focus-visible:ring-1"
                         value={settings().displayName}
                         maxlength="24"
                         placeholder="朋友"

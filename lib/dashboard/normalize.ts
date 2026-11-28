@@ -26,10 +26,16 @@ type LegacyType = (typeof LEGACY_TYPES)[number];
 function normalizeIcon(value: unknown): IconSource | undefined {
     if (!isRecord(value)) return undefined;
 
-    if (value.kind === 'favicon') return { kind: 'favicon' };
+    if (value.kind === 'favicon') {
+        const url = typeof value.url === 'string' ? value.url.trim() : '';
+        return url ? { kind: 'favicon', url } : { kind: 'favicon' };
+    }
 
     if (value.kind === 'solid' && typeof value.color === 'string') {
-        return { kind: 'solid', color: value.color };
+        const text = typeof value.text === 'string' ? value.text.trim() : '';
+        return text
+            ? { kind: 'solid', color: value.color, text }
+            : { kind: 'solid', color: value.color };
     }
 
     // 用户上传还没做，先只保留"是上传"这个事实。

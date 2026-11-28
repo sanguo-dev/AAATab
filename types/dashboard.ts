@@ -15,12 +15,13 @@ export interface GridRect {
 /**
  * cell 图标只有三种来源：
  * - `favicon`：由 cell 的地址解析站点图标（页面声明的 icon 优先，退到 /favicon.ico）；
- * - `solid`：纯色块；
+ *   带 `url` 时表示用户从候选里挑定了某一张，直接用它，不再自动解析；
+ * - `solid`：纯色块，可以带一段文字（`text`）显示在图标位；
  * - `upload`：用户上传的图片（先占位，选择器和存储都还没做）。
  */
 export type IconSource =
-    | { kind: 'favicon' }
-    | { kind: 'solid'; color: string }
+    | { kind: 'favicon'; url?: string }
+    | { kind: 'solid'; color: string; text?: string }
     | { kind: 'upload' };
 
 /**
@@ -29,7 +30,7 @@ export type IconSource =
  * - `widget`：系统提供的小组件，由 `widget` id 决定渲染什么，目前只有时间；
  * - `custom`：自定义 cell，由 `template` id 决定模板，未注册的 id 回退到默认模板。
  *
- * 具体的 id 列表和渲染实现分别放在 `entrypoints/newtab/dashboard/cell-kinds.ts` 和
+ * 具体的 id 列表和渲染实现分别放在 `lib/dashboard/cell-kinds.ts` 和
  * `entrypoints/newtab/cells/` 的注册表里；这里只定义存下来的形状。
  */
 export type CellKind = 'link' | 'widget' | 'custom';

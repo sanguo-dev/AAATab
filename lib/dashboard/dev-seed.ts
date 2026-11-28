@@ -3,7 +3,7 @@ import type { Cell, DashboardData } from '@/types/dashboard';
 /**
  * 只在开发期存在的种子数据。
  *
- * 它只通过 `import.meta.env.DEV` 被引用（见 `use-dashboard.tsx` 里 storage 的
+ * 它只通过 `import.meta.env.DEV` 被引用（见 `storage.ts` 里 dashboard 条目的
  * `init`），所以正式构建会把这段代码和这个模块一起摇掉，产物里没有这些数据。
  */
 

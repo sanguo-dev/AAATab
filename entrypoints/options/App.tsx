@@ -6,6 +6,7 @@ import { Router } from './router';
 const TABS: SettingsTab[] = [
     { path: '/', label: '常规' },
     { path: '/newtab', label: '新标签页' },
+    { path: '/data', label: '数据' },
 ];
 
 export default function App() {

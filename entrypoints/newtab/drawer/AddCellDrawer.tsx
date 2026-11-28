@@ -37,6 +37,8 @@ const TAB_GROUPS: TabGroup[] = [
 interface AddCellDrawerProps {
     /** 点某个图标：把它作为一个 link cell 加到当前页。 */
     onAddLink: (item: CatalogItem) => void;
+    /** 打开「自定义添加」二级页面。 */
+    onCustom: () => void;
 }
 
 /**
@@ -161,13 +163,13 @@ export default function AddCellDrawer(props: AddCellDrawerProps) {
 
     return (
         <div
-            class="flex min-h-0 flex-1 flex-col gap-3 p-4"
+            class="flex min-h-0 flex-1 flex-col gap-6 p-4"
             /* 抽屉里滚轮只归抽屉用，别传出去触发外壳的"滚到底翻页"。 */
             onWheel={(event) => event.stopPropagation()}
         >
             <div class="grid grid-cols-2 gap-2">
                 {/* 两个入口都还没实现，先占位。 */}
-                <Button variant="outline" size="sm" disabled title="自定义（待实现）">
+                <Button variant="outline" size="sm" onClick={props.onCustom}>
                     <Sparkles size={14} />
                     自定义
                 </Button>
@@ -182,7 +184,8 @@ export default function AddCellDrawer(props: AddCellDrawerProps) {
                 onInput={(event) => setQuery(event.currentTarget.value)}
                 placeholder="搜索图标"
                 aria-label="搜索图标"
-                class="h-9"
+                /* 组件默认聚焦是 3px ring，搜索框这里收细到 1px。 */
+                class="h-9 focus-visible:ring-1"
             />
 
             <Tabs

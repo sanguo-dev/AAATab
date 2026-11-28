@@ -27,14 +27,30 @@ function IconPlaceholder(props: { size: number }) {
     );
 }
 
-/** 纯色块，占满图标槽位。 */
-function SolidIcon(props: { color: string; size: number }) {
+/** 浅色底用深色字，深色底用白字。 */
+export function readableTextColor(color: string): string {
+    const match = /^#?([0-9a-f]{6})$/i.exec(color.trim());
+    const hex = match?.[1];
+    if (!hex) return '#ffffff';
+
+    const value = Number.parseInt(hex, 16);
+    const r = (value >> 16) & 0xff;
+    const g = (value >> 8) & 0xff;
+    const b = value & 0xff;
+
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.62 ? '#0b1119' : '#ffffff';
+}
+
+/** 纯色块，占满图标槽位；带文字时居中显示。 */
+function SolidIcon(props: { color: string; text?: string; size: number }) {
     return (
         <span
-            class="block rounded-lg"
-            style={`width: ${props.size}px; height: ${props.size}px; background: ${props.color};`}
+            class="grid place-items-center overflow-hidden rounded-lg font-semibold leading-none"
+            style={`width: ${props.size}px; height: ${props.size}px; background: ${props.color}; color: ${readableTextColor(props.color)}; font-size: ${Math.round(props.size * 0.42)}px;`}
             aria-hidden="true"
-        />
+        >
+            {props.text}
+        </span>
     );
 }
 
@@ -48,13 +64,16 @@ function SolidIcon(props: { color: string; size: number }) {
  * 图片用 `<img>` 直接渲染，不经过 canvas，所以图标在第三方 CDN 上也不需要
  * CORS；同一地址换图时浏览器会命中自己的缓存。
  */
-function FaviconImage(props: { url: string; size: number; preview?: boolean }) {
+function FaviconImage(props: { url?: string; src?: string; size: number; preview?: boolean }) {
     const root = () => {
-        const url = parseWebUrl(props.url);
+        const url = props.url ? parseWebUrl(props.url) : null;
         return url ? siteRoot(url) : null;
     };
 
     const initial = (): string[] => {
+        // 用户在候选里挑定了某一张：直接画它，不再自动解析。
+        if (props.src) return [props.src];
+
         const origin = root();
         if (!origin) return [];
 
@@ -73,7 +92,7 @@ function FaviconImage(props: { url: string; size: number; preview?: boolean }) {
     let started = false;
 
     const upgrade = () => {
-        if (started) return;
+        if (started || props.src || !props.url) return;
         started = true;
 
         void resolveIconCandidates(props.url)
@@ -90,7 +109,7 @@ function FaviconImage(props: { url: string; size: number; preview?: boolean }) {
     };
 
     onSettled(() => {
-        if (props.preview || !root()) return;
+        if (props.preview || props.src || !root()) return;
         upgrade();
     });
 
@@ -100,7 +119,8 @@ function FaviconImage(props: { url: string; size: number; preview?: boolean }) {
             return;
         }
 
-        if (!started) {
+        // 指定了具体图标时没有"再解析一次"这条路，失败就落到占位。
+        if (!started && !props.src) {
             upgrade();
             return;
         }
@@ -132,17 +152,23 @@ function FaviconImage(props: { url: string; size: number; preview?: boolean }) {
 /**
  * cell 图标的唯一渲染点：按来源分派。
  *
- * `favicon` 现在会真的解析站点图标；`upload` 还没做，仍然渲染占位。
+ * `favicon` 会解析站点图标（或直接用用户挑定的那张）；`solid` 可以带文字；
+ * `upload` 还没做，仍然渲染占位。
  */
 export default function CellIcon(props: CellIconProps) {
     const size = () => props.size ?? 28;
-    const source = () => props.icon ?? (props.url ? ({ kind: 'favicon' } as const) : undefined);
+    const source = (): IconSource | undefined =>
+        props.icon ?? (props.url ? { kind: 'favicon' } : undefined);
     const icon = source();
     const url = props.url?.trim();
 
-    if (icon?.kind === 'solid') return <SolidIcon color={icon.color} size={size()} />;
-    if (icon?.kind === 'favicon' && url) {
-        return <FaviconImage url={url} size={size()} preview={props.preview} />;
+    if (icon?.kind === 'solid') {
+        return <SolidIcon color={icon.color} text={icon.text} size={size()} />;
+    }
+
+    if (icon?.kind === 'favicon') {
+        if (icon.url) return <FaviconImage src={icon.url} size={size()} preview={props.preview} />;
+        if (url) return <FaviconImage url={url} size={size()} preview={props.preview} />;
     }
 
     return <IconPlaceholder size={size()} />;

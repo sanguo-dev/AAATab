@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
 
-import type { SystemWidgetId } from '../dashboard/cell-kinds';
+import type { SystemWidgetId } from '@/lib/dashboard/cell-kinds';
 import type { WidgetCell } from '@/types/dashboard';
 
 import ClockWidget from './ClockWidget';

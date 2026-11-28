@@ -1,3 +1,4 @@
+import { LayoutGrid } from '@lucide/solid';
 import { For, Show, createEffect, createSignal, onSettled } from 'solid-js';
 
 import {
@@ -17,9 +18,10 @@ import { SettingsProvider } from '@/lib/use-settings';
 import type { Cell } from '@/types/dashboard';
 
 import { createCellId } from './dashboard/ids';
-import { DashboardProvider, useDashboard } from './dashboard/use-dashboard';
+import { DashboardProvider, useDashboard, type CellPatch } from './dashboard/use-dashboard';
 import AddCellDrawer from './drawer/AddCellDrawer';
 import type { CatalogItem } from './drawer/catalog';
+import CustomIconPage, { type CustomIconDraft } from './drawer/CustomIconPage';
 import { GLOBAL_MENU, type GlobalMenuCommand } from './global-menu';
 import NewTabShell from './layout/NewTabShell';
 import PageGrid from './PageGrid';
@@ -35,19 +37,31 @@ export default function App() {
 }
 
 function NewTabView() {
-    const { data, setActivePage, addCell, removeCell, reorderCell } = useDashboard();
+    const { data, setActivePage, addCell, updateCell, removeCell, reorderCell } = useDashboard();
     const [direction, setDirection] = createSignal(1);
     const [editing, setEditing] = createSignal(false);
 
     /**
      * 抽屉由这一层持有：
      * - `add`：全局右键「添加图标」进来，还没有 cell；
+     * - `custom`：抽屉里点「自定义」进来的二级页面；
      * - `edit`：cell 右键「编辑图标」进来，带着那个 cell。
      */
-    const [drawerMode, setDrawerMode] = createSignal<'add' | 'edit' | null>(null);
+    const [drawerMode, setDrawerMode] = createSignal<'add' | 'custom' | 'edit' | null>(null);
     const [drawerCell, setDrawerCell] = createSignal<Cell | null>(null);
 
     const openAdd = () => {
+        setDrawerCell(null);
+        setDrawerMode('add');
+    };
+
+    const openCustom = () => {
+        setDrawerCell(null);
+        setDrawerMode('custom');
+    };
+
+    /** 二级页面的「返回」：一律回到一级页面，并清掉编辑目标。 */
+    const backToCatalog = () => {
         setDrawerCell(null);
         setDrawerMode('add');
     };
@@ -133,6 +147,36 @@ function NewTabView() {
         });
     };
 
+    /** 「自定义添加」完成：新建一个带图标 / 纯色的 link cell。 */
+    const addCustomCell = (draft: CustomIconDraft) => {
+        const target = page();
+        if (!target || !draft.url) return;
+
+        addCell(target.id, {
+            id: createCellId(),
+            kind: 'link',
+            title: draft.title,
+            url: draft.url,
+            grid: { x: 0, y: 0, w: 1, h: 1 },
+            ...(draft.icon ? { icon: draft.icon } : {}),
+        });
+        closeDrawer();
+    };
+
+    /** 「编辑图标」完成：改标题 / 图标；链接 cell 顺带改地址。 */
+    const saveCellIcon = (draft: CustomIconDraft) => {
+        const cell = drawerCell();
+        const target = page();
+        if (!cell || !target) return;
+
+        const patch: CellPatch = { title: draft.title };
+        if (draft.icon) patch.icon = draft.icon;
+        if (cell.kind === 'link' && draft.url) patch.url = draft.url;
+
+        updateCell(target.id, cell.id, patch);
+        closeDrawer();
+    };
+
     const runCommand = (command: GlobalMenuCommand) => {
         switch (command) {
             case 'add-icon':
@@ -198,21 +242,46 @@ function NewTabView() {
                     if (!open) closeDrawer();
                 }}
             >
-                <DrawerContent data-cell-drawer="true" class="h-dvh max-h-dvh bg-background">
-                    <DrawerHeader>
-                        <DrawerTitle>{drawerMode() === 'add' ? '添加图标' : '编辑图标'}</DrawerTitle>
-                        <DrawerDescription>{drawerCell()?.title ?? ''}</DrawerDescription>
+                <DrawerContent data-cell-drawer="true" class="h-dvh max-h-dvh w-96 bg-background">
+                    <DrawerHeader class={drawerMode() === 'add' ? 'pb-2' : 'sr-only'}>
+                        <DrawerTitle class="flex items-center gap-2">
+                            {/* 28px 的占位和二级页面的返回键同宽，两个页面的标题才能对齐。 */}
+                            <span class="grid size-7 place-items-center">
+                                <LayoutGrid size={16} class="text-muted-foreground" />
+                            </span>
+                            <span>{drawerMode() === 'edit' ? '编辑图标' : '添加图标'}</span>
+                        </DrawerTitle>
+                        <Show when={drawerMode() === 'add' && drawerCell()?.title}>
+                            <DrawerDescription>{drawerCell()!.title}</DrawerDescription>
+                        </Show>
                     </DrawerHeader>
-                    {/* 抽屉本身不做滚动容器：要滚的是里面自己的元素。 */}
-                    <Show
-                        when={drawerMode() === 'add'}
-                        fallback={
-                            <div class="min-h-0 flex-1 p-4 text-sm text-muted-foreground">
-                                图标编辑功能待实现。
-                            </div>
-                        }
-                    >
-                        <AddCellDrawer onAddLink={addLinkCell} />
+
+                    <Show when={drawerMode() === 'add'}>
+                        <AddCellDrawer onAddLink={addLinkCell} onCustom={openCustom} />
+                    </Show>
+
+                    <Show when={drawerMode() === 'custom'}>
+                        <CustomIconPage mode="add" onBack={backToCatalog} onSubmit={addCustomCell} />
+                    </Show>
+
+                    <Show when={drawerMode() === 'edit'}>
+                        <Show
+                            when={drawerCell()}
+                            fallback={
+                                <div class="min-h-0 flex-1 p-4 text-sm text-muted-foreground">
+                                    这个 cell 已经不在了。
+                                </div>
+                            }
+                        >
+                            {(cell) => (
+                                <CustomIconPage
+                                    mode="edit"
+                                    cell={cell()}
+                                    onBack={backToCatalog}
+                                    onSubmit={saveCellIcon}
+                                />
+                            )}
+                        </Show>
                     </Show>
                 </DrawerContent>
             </Drawer>

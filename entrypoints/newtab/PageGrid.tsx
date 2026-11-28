@@ -9,7 +9,7 @@ import { For, Show, createSignal } from 'solid-js';
 import { browser } from 'wxt/browser';
 
 import { Button } from '@/components/ui/button';
-import { isLinkCell } from './dashboard/cell-kinds';
+import { isLinkCell } from '@/lib/dashboard/cell-kinds';
 import { GRID_CELL_SIZE, type Cell, type DashboardPage } from '@/types/dashboard';
 
 import CellContextMenu, { type CellMenuCommand } from './cells/CellContextMenu';

@@ -2,7 +2,7 @@ import type { Component } from 'solid-js';
 
 import type { CustomCell as CustomCellData } from '@/types/dashboard';
 
-import { DEFAULT_CUSTOM_TEMPLATE } from '../dashboard/cell-kinds';
+import { DEFAULT_CUSTOM_TEMPLATE } from '@/lib/dashboard/cell-kinds';
 import DefaultCustomTemplate from './DefaultCustomTemplate';
 
 export interface CustomTemplateProps {

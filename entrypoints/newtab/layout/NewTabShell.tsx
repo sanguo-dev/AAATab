@@ -120,7 +120,7 @@ export default function NewTabShell(props: NewTabShellProps) {
 
             <div class="fixed inset-x-0 top-30 z-40 flex justify-center px-25">
                 <Input
-                    class="h-10 w-full max-w-xl bg-card/60"
+                    class="h-10 w-full max-w-xl bg-card/60 focus-visible:ring-1"
                     placeholder="搜索"
                     aria-label="搜索"
                 />
