@@ -116,7 +116,7 @@ function FaviconImage(props: { url: string; size: number; preview?: boolean }) {
                     alt=""
                     width={props.size}
                     height={props.size}
-                    class="block rounded-lg object-contain"
+                    class="block object-contain"
                     style={`width: ${props.size}px; height: ${props.size}px;`}
                     referrerpolicy="no-referrer"
                     decoding="async"

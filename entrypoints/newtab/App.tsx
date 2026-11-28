@@ -198,7 +198,7 @@ function NewTabView() {
                     if (!open) closeDrawer();
                 }}
             >
-                <DrawerContent data-cell-drawer="true" class="h-dvh max-h-dvh">
+                <DrawerContent data-cell-drawer="true" class="h-dvh max-h-dvh bg-background">
                     <DrawerHeader>
                         <DrawerTitle>{drawerMode() === 'add' ? '添加图标' : '编辑图标'}</DrawerTitle>
                         <DrawerDescription>{drawerCell()?.title ?? ''}</DrawerDescription>
